@@ -192,7 +192,9 @@ int glext_init(void);
 #define GL_TEXTURE_GEN_STR_OES                                  0x8D60
 #endif
 
-GL_API void GL_APIENTRY glTexGeniOES(GLenum coord, GLenum pname, GLint param);
+typedef void (APIENTRYP PFNGLTEXGENIOES_PROC)(GLenum coord, GLenum pname, GLint param);
+
+extern PFNGLTEXGENIOES_PROC glTexGeniOES_;
 
 #else /* No native linkage?  Define the extension API. */
 
@@ -314,6 +316,7 @@ struct gl_info
 
     unsigned int shader_objects     : 1;
     unsigned int framebuffer_object : 1;
+    unsigned int texture_cube_map : 1;
 };
 
 extern struct gl_info gli;

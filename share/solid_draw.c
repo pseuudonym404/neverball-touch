@@ -876,7 +876,7 @@ void r_apply_mtrl(struct s_rend *rend, int mi)
 
     if (mp->o != mq->o) {
 #if ENABLE_OPENGLES
-    if (mp_flags & M_ENVIRONMENT)
+    if (gli.texture_cube_map && (mp_flags & M_ENVIRONMENT))
         glBindTexture(GL_TEXTURE_CUBE_MAP_OES, mp->o);
     else
 #endif
@@ -909,13 +909,13 @@ void r_apply_mtrl(struct s_rend *rend, int mi)
     /* Environment mapping. */
 
 #if ENABLE_OPENGLES
-    if ((mp_flags & M_ENVIRONMENT) ^ (mq_flags & M_ENVIRONMENT))
+    if (gli.texture_cube_map && ((mp_flags & M_ENVIRONMENT) ^ (mq_flags & M_ENVIRONMENT)))
     {
         if (mp_flags & M_ENVIRONMENT)
         {
             glEnable(GL_TEXTURE_CUBE_MAP_OES);
             glEnable(GL_TEXTURE_GEN_STR_OES);
-            glTexGeniOES(GL_TEXTURE_GEN_STR_OES, GL_TEXTURE_GEN_MODE_OES, GL_REFLECTION_MAP_OES);
+            glTexGeniOES_(GL_TEXTURE_GEN_STR_OES, GL_TEXTURE_GEN_MODE_OES, GL_REFLECTION_MAP_OES);
         }
         else
         {

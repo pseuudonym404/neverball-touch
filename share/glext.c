@@ -22,7 +22,11 @@ struct gl_info gli;
 
 /*---------------------------------------------------------------------------*/
 
-#if !ENABLE_OPENGLES
+#if ENABLE_OPENGLES
+
+PFNGLTEXGENIOES_PROC glTexGeniOES_;
+
+#else
 
 PFNGLCLIENTACTIVETEXTURE_PROC    glClientActiveTexture_;
 PFNGLACTIVETEXTURE_PROC          glActiveTexture_;
@@ -125,7 +129,14 @@ int glext_init(void)
 
     /* Desktop init. */
 
-#if !ENABLE_OPENGLES
+#if ENABLE_OPENGLES
+    if (glext_check("OES_texture_cube_map"))
+    {
+        SDL_GL_GFPA(glTexGeniOES_, "glTexGeniOES");
+
+        gli.texture_cube_map = 1;
+    }
+#else
 
     if (glext_assert("ARB_multitexture"))
     {

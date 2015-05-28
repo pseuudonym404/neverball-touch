@@ -1,5 +1,7 @@
-CC := arm-linux-gnueabihf-gcc
-CXX := arm-linux-gnueabihf-g++
+#CC := arm-linux-gnueabihf-gcc
+#CXX := arm-linux-gnueabihf-g++
+CC := i686-linux-gnu-gcc
+CXX := i686-linux-gnu-g++
 
 #------------------------------------------------------------------------------
 
@@ -22,7 +24,7 @@ endif
 #------------------------------------------------------------------------------
 # Paths (packagers might want to set DATADIR and LOCALEDIR)
 
-USERDIR   := .config/neverball
+USERDIR   := .config/neverputt.lb
 DATADIR   := ./data
 LOCALEDIR := ./locale
 
@@ -66,7 +68,7 @@ ALL_CXXFLAGS := -fno-rtti -fno-exceptions $(CXXFLAGS)
 
 # Preprocessor...
 
-SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL2-2.0.3/install/bin/sdl2-config --cflags)
+SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --cflags)
 PNG_CPPFLAGS := $(shell libpng-config --cflags)
 
 ALL_CPPFLAGS := $(SDL_CPPFLAGS) $(PNG_CPPFLAGS) -Ishare
@@ -126,7 +128,7 @@ ALL_CPPFLAGS += $(HMD_CPPFLAGS)
 #------------------------------------------------------------------------------
 # Libraries
 
-SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL2-2.0.3/install/bin/sdl2-config --libs)
+SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --libs)
 PNG_LIBS := $(shell libpng-config --libs)
 
 ifeq ($(ENABLE_FS),stdio)
@@ -158,7 +160,7 @@ endif
 endif
 endif
 
-OGL_LIBS := -L$(PWD)/lib -lGLESv1_CM -lhybris-common
+OGL_LIBS := -L/usr/lib/i386-linux-gnu -L$(PWD)/lib -lGLESv1_CM -lhybris-common
 
 ifeq ($(PLATFORM),mingw)
 	ifneq ($(ENABLE_NLS),0)

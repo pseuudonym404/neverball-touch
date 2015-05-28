@@ -136,7 +136,7 @@ GLuint make_texture(const void *p, int w, int h, int b, int fl, int env)
     glGenTextures(1, &o);
     GLenum target = GL_TEXTURE_2D;
 #if ENABLE_OPENGLES
-    if (env) {
+    if (gli.texture_cube_map && env) {
         target = GL_TEXTURE_CUBE_MAP_OES;
         glBindTexture(GL_TEXTURE_CUBE_MAP_OES, o);
     } else
@@ -164,7 +164,7 @@ GLuint make_texture(const void *p, int w, int h, int b, int fl, int env)
     /* Copy the image to an OpenGL texture. */
 
 #if ENABLE_OPENGLES
-    if (env) {
+    if (gli.texture_cube_map && env) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
