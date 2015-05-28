@@ -101,12 +101,12 @@ static int conf_enter(struct state *st, struct state *prev)
     {
         if ((jd = gui_harray(id)))
         {
-            gui_label(jd, _("Options"), GUI_SML, 0, 0);
+            gui_label(jd, _("Options"), GUI_MED, 0, 0);
             gui_space(jd);
-            gui_start(jd, _("Back"),    GUI_SML, CONF_BACK, 0);
+            gui_start(jd, _("Back"),    GUI_MED, CONF_BACK, 0);
         }
 
-        gui_space(id);
+        /*gui_space(id);
 
         if ((jd = gui_harray(id)) &&
             (kd = gui_harray(jd)))
@@ -114,7 +114,7 @@ static int conf_enter(struct state *st, struct state *prev)
             gui_state(kd, _("Configure"), GUI_SML, CONF_VIDEO, 0);
 
             gui_label(jd, _("Graphics"),  GUI_SML, 0, 0);
-        }
+        }*/
 
         gui_space(id);
 
@@ -127,11 +127,11 @@ static int conf_enter(struct state *st, struct state *prev)
 
             for (i = 10; i >= 0; i--)
             {
-                sound_id[i] = gui_state(kd, NULL, GUI_SML, 100 + i, 0);
+                sound_id[i] = gui_state(kd, NULL, GUI_MED, 100 + i, 0);
                 gui_set_hilite(sound_id[i], (s == i));
             }
 
-            gui_label(jd, _("Sound Volume"), GUI_SML, 0, 0);
+            gui_label(jd, _("Sound Volume"), GUI_MED, 0, 0);
         }
 
         if ((jd = gui_harray(id)) &&
@@ -143,11 +143,11 @@ static int conf_enter(struct state *st, struct state *prev)
 
             for (i = 10; i >= 0; i--)
             {
-                music_id[i] = gui_state(kd, NULL, GUI_SML, 200 + i, 0);
+                music_id[i] = gui_state(kd, NULL, GUI_MED, 200 + i, 0);
                 gui_set_hilite(music_id[i], (m == i));
             }
 
-            gui_label(jd, _("Music Volume"), GUI_SML, 0, 0);
+            gui_label(jd, _("Music Volume"), GUI_MED, 0, 0);
         }
 
         gui_space(id);
@@ -155,9 +155,9 @@ static int conf_enter(struct state *st, struct state *prev)
         if ((jd = gui_harray(id)) &&
             (kd = gui_harray(jd)))
         {
-            gui_state(kd, _("Select"), GUI_SML, CONF_LANG, 0);
+            gui_state(kd, _("Select"), GUI_MED, CONF_LANG, 0);
 
-            gui_label(jd, _("Language"),  GUI_SML, 0, 0);
+            gui_label(jd, _("Language"),  GUI_MED, 0, 0);
         }
 
         gui_layout(id, 0, 0);

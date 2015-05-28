@@ -8,6 +8,7 @@
 #define GUI_SCORE_COIN  0x1
 #define GUI_SCORE_TIME  0x2
 #define GUI_SCORE_GOAL  0x4
+#define GUI_SCORE_SAVE  0x8
 #define GUI_SCORE_ALL  (GUI_SCORE_COIN | GUI_SCORE_TIME | GUI_SCORE_GOAL)
 
 #define GUI_SCORE_NEXT(s) \

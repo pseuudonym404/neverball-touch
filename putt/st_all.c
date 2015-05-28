@@ -347,7 +347,7 @@ static int course_enter(struct state *st, struct state *prev)
     int w = video.device_w;
     int h = video.device_h;
 
-    int id, jd, kd, ld, md;
+    int id, jd, kd, ld;//, md;
 
     int i, j, r, c, n;
 
@@ -358,20 +358,25 @@ static int course_enter(struct state *st, struct state *prev)
 
     if ((id = gui_vstack(0)))
     {
-        gui_label(id, _("Select Course"), GUI_MED, 0, 0);
+        if ((jd = gui_hstack(id))) {
+            gui_label(jd, _("Select Course"), GUI_MED, 0, 0);
+            gui_space(jd);
+            gui_filler(jd);
+            gui_state(jd, _("Back"), GUI_MED, COURSE_BACK, 0);
+        }
         gui_space(id);
 
-        if ((jd = gui_hstack(id)))
+        /*if ((jd = gui_hstack(id)))
         {
             shot_id = gui_image(jd, course_shot(0), w / 3, h / 3);
 
-            gui_filler(jd);
+            gui_filler(jd);*/
 
-            if ((kd = gui_varray(jd)))
+            if ((jd = gui_varray(id)))
             {
                 for(i = 0; i < r; i++)
                 {
-                    if ((ld = gui_harray(kd)))
+                    if ((kd = gui_harray(jd)))
                     {
                         for (j = c - 1; j >= 0; j--)
                         {
@@ -379,30 +384,24 @@ static int course_enter(struct state *st, struct state *prev)
 
                             if (k < n)
                             {
-                                md = gui_image(ld, course_shot(k),
-                                               w / 3 / c, h / 3 / r);
-                                gui_set_state(md, k, 0);
+                                ld = gui_image(kd, course_shot(k),
+                                               w / (c + 1), h / (r + 1));
+                                gui_set_state(ld, k, 0);
 
                                 if (k == 0)
-                                    gui_focus(md);
+                                    gui_focus(ld);
                             }
                             else
-                                gui_space(ld);
+                                gui_space(kd);
                         }
                     }
                 }
             }
-        }
+        //}
 
-        gui_space(id);
+        /*gui_space(id);
         desc_id = gui_multi(id, _(course_desc(0)), GUI_SML, gui_yel, gui_wht);
-        gui_space(id);
-
-        if ((jd = gui_hstack(id)))
-        {
-            gui_filler(jd);
-            gui_state(jd, _("Back"), GUI_SML, COURSE_BACK, 0);
-        }
+        gui_space(id);*/
 
         gui_layout(id, 0, 0);
     }
@@ -526,7 +525,13 @@ static int party_enter(struct state *st, struct state *prev)
 
     if ((id = gui_vstack(0)))
     {
-        gui_label(id, _("Players?"), GUI_MED, 0, 0);
+        if ((jd = gui_hstack(id)))
+        {
+            gui_label(jd, _("Players"), GUI_MED, 0, 0);
+            gui_space(jd);
+            gui_filler(jd);
+            gui_state(jd, _("Back"), GUI_MED, PARTY_B, 0);
+        }
         gui_space(id);
 
         if ((jd = gui_harray(id)))
@@ -542,14 +547,6 @@ static int party_enter(struct state *st, struct state *prev)
             gui_set_color(p4, gui_yel, gui_wht);
 
             gui_focus(p1);
-        }
-
-        gui_space(id);
-
-        if ((jd = gui_hstack(id)))
-        {
-            gui_filler(jd);
-            gui_state(jd, _("Back"), GUI_SML, PARTY_B, 0);
         }
 
         gui_layout(id, 0, 0);
@@ -646,8 +643,8 @@ static int pause_enter(struct state *st, struct state *prev)
 
         if ((jd = gui_harray(id)))
         {
-            gui_state(jd, _("Quit"), GUI_SML, PAUSE_QUIT, 0);
-            gui_start(jd, _("Continue"), GUI_SML, PAUSE_CONTINUE, 1);
+            gui_state(jd, _("Quit"), GUI_MED, PAUSE_QUIT, 0);
+            gui_start(jd, _("Continue"), GUI_MED, PAUSE_CONTINUE, 1);
         }
 
         gui_pulse(td, 1.2f);
@@ -798,7 +795,7 @@ static void next_point(int id, int x, int y, int dx, int dy)
 
 static int next_click(int b, int d)
 {
-    return (d && b == SDL_BUTTON_LEFT) ? goto_state(&st_flyby) : 1;
+    return (!d && b == SDL_BUTTON_LEFT) ? goto_state(&st_flyby) : 1;
 }
 
 static int next_keybd(int c, int d)
@@ -939,6 +936,7 @@ static int stroke_mag    = 0;
 static int stroke_enter(struct state *st, struct state *prev)
 {
     hud_init();
+    hud_show_controls();
     game_clr_mag();
     config_set_d(CONFIG_CAMERA, 2);
     video_set_grab(1);
@@ -984,10 +982,15 @@ static void stroke_timer(int id, float dt)
     game_step(g, dt);
 }
 
+static int hittest = 0;
+
 static void stroke_point(int id, int x, int y, int dx, int dy)
 {
-    game_set_rot(dx);
-    game_set_mag(dy);
+    hittest = hud_hit_test(x, y);
+    if (!hittest) {
+        game_set_rot(dx);
+        game_set_mag(dy);
+    }
 }
 
 static void stroke_stick(int id, int a, float v, int bump)
@@ -1000,7 +1003,19 @@ static void stroke_stick(int id, int a, float v, int bump)
 
 static int stroke_click(int b, int d)
 {
-    return (d && b == SDL_BUTTON_LEFT) ? goto_state(&st_roll) : 1;
+    if (!d) {
+        if (hittest == 1) {
+            hud_hide_controls();
+            audio_play(AUD_MENU, 1.0f);
+            goto_pause(&st_over);
+        } else if (hittest == 2) {
+            hud_hide_controls();
+            audio_play(AUD_MENU, 1.0f);
+            goto_state(&st_roll);
+        }
+    }
+    //return (d && b == SDL_BUTTON_LEFT) ? goto_state(&st_roll) : 1;
+    return 1;
 }
 
 static int stroke_buttn(int b, int d)
@@ -1110,7 +1125,7 @@ static void goal_timer(int id, float dt)
 
 static int goal_click(int b, int d)
 {
-    if (b == SDL_BUTTON_LEFT && d == 1)
+    if (b == SDL_BUTTON_LEFT && !d)
     {
         if (hole_next())
             goto_state(&st_next);
@@ -1180,7 +1195,7 @@ static void stop_timer(int id, float dt)
 
 static int stop_click(int b, int d)
 {
-    if (b == SDL_BUTTON_LEFT && d == 1)
+    if (b == SDL_BUTTON_LEFT && !d)
     {
         if (hole_next())
             goto_state(&st_next);
@@ -1256,7 +1271,7 @@ static void fall_timer(int id, float dt)
 
 static int fall_click(int b, int d)
 {
-    if (b == SDL_BUTTON_LEFT && d == 1)
+    if (b == SDL_BUTTON_LEFT && !d)
     {
         if (hole_next())
             goto_state(&st_next);
@@ -1313,7 +1328,7 @@ static void score_timer(int id, float dt)
 
 static int score_click(int b, int d)
 {
-    if (b == SDL_BUTTON_LEFT && d == 1)
+    if (b == SDL_BUTTON_LEFT && !d)
     {
         if (hole_move())
             return goto_state(&st_next);
@@ -1366,7 +1381,7 @@ static void over_timer(int id, float dt)
 
 static int over_click(int b, int d)
 {
-    return (d && b == SDL_BUTTON_LEFT) ? goto_state(&st_title) : 1;
+    return (!d && b == SDL_BUTTON_LEFT) ? goto_state(&st_title) : 1;
 }
 
 static int over_buttn(int b, int d)

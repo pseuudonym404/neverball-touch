@@ -101,7 +101,7 @@ void config_paths(const char *arg_data_path)
 
     if (!fs_set_write_dir(user))
     {
-        if (fs_set_write_dir(home) && fs_mkdir(CONFIG_USER))
+        if (!dir_make(user))
             fs_set_write_dir(user);
     }
 

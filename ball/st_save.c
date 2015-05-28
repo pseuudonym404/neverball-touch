@@ -108,9 +108,9 @@ static int save_gui(void)
 
         if ((jd = gui_harray(id)))
         {
-            enter_id = gui_start(jd, _("Save"), GUI_SML, SAVE_SAVE, 0);
+            enter_id = gui_start(jd, _("Save"), GUI_MED, SAVE_SAVE, 0);
             gui_space(jd);
-            gui_state(jd, _("Cancel"), GUI_SML, GUI_BACK, 0);
+            gui_state(jd, _("Cancel"), GUI_MED, GUI_BACK, 0);
         }
 
         gui_layout(id, 0, 0);

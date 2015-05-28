@@ -66,15 +66,15 @@ static int done_gui(void)
         int gid;
 
         if (high)
-            gid = gui_label(id, s1, GUI_MED, gui_grn, gui_grn);
+            gid = gui_label(id, s1, GUI_LRG, gui_blu, gui_grn);
         else
-            gid = gui_label(id, s2, GUI_MED, gui_blu, gui_grn);
+            gid = gui_label(id, s2, GUI_LRG, gui_blu, gui_grn);
 
         gui_space(id);
         gui_score_board(id, GUI_SCORE_COIN | GUI_SCORE_TIME, 1, high);
         gui_space(id);
 
-        gui_start(id, _("Select Level"), GUI_SML, GUI_BACK, 0);
+        gui_start(id, _("Select Level"), GUI_MED, GUI_BACK, 0);
 
         if (!resume)
             gui_pulse(gid, 1.2f);

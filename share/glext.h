@@ -26,7 +26,7 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
-#include <GL/gl.h>
+#include <GLES/gl.h>
 #endif
 
 #ifdef _WIN32
@@ -170,10 +170,29 @@ int glext_init(void);
 #define glDeleteBuffers_       glDeleteBuffers
 #define glIsBuffer_            glIsBuffer
 #define glPointParameterfv_    glPointParameterfv
+#define glPointParameterf_     glPointParameterf
 
 #define glOrtho_               glOrthof
 
 #define glStringMarker_(s) ((void) (s))
+
+#ifndef GL_OES_texture_cube_map
+#define GL_NORMAL_MAP_OES                                       0x8511
+#define GL_REFLECTION_MAP_OES                                   0x8512
+#define GL_TEXTURE_CUBE_MAP_OES                                 0x8513
+#define GL_TEXTURE_BINDING_CUBE_MAP_OES                         0x8514
+#define GL_TEXTURE_CUBE_MAP_POSITIVE_X_OES                      0x8515
+#define GL_TEXTURE_CUBE_MAP_NEGATIVE_X_OES                      0x8516
+#define GL_TEXTURE_CUBE_MAP_POSITIVE_Y_OES                      0x8517
+#define GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_OES                      0x8518
+#define GL_TEXTURE_CUBE_MAP_POSITIVE_Z_OES                      0x8519
+#define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_OES                      0x851A
+#define GL_MAX_CUBE_MAP_TEXTURE_SIZE_OES                        0x851C
+#define GL_TEXTURE_GEN_MODE_OES                                 0x2500
+#define GL_TEXTURE_GEN_STR_OES                                  0x8D60
+#endif
+
+GL_API void GL_APIENTRY glTexGeniOES(GLenum coord, GLenum pname, GLint param);
 
 #else /* No native linkage?  Define the extension API. */
 

@@ -155,11 +155,11 @@ static int conf_gui(void)
 
         conf_header(id, _("Options"), GUI_BACK);
 
-        conf_state(id, _("Graphics"), _("Configure"), CONF_VIDEO);
+        //conf_state(id, _("Graphics"), _("Configure"), CONF_VIDEO);
 
-        gui_space(id);
+        //gui_space(id);
 
-        conf_slider(id, _("Mouse Sensitivity"), CONF_MOUSE_SENSE, mouse,
+        conf_slider(id, _("Tilt Sensitivity"), CONF_MOUSE_SENSE, mouse,
                     mouse_id, ARRAYSIZE(mouse_id));
 
         gui_space(id);

@@ -103,7 +103,7 @@ struct widget
 static struct widget widget[WIDGET_MAX];
 static int           active;
 static int           hovered;
-static int           clicked;
+//static int           clicked;
 static int           padding;
 static int           borders[4];
 
@@ -764,7 +764,7 @@ void gui_set_image(int id, const char *file)
 {
     glDeleteTextures(1, &widget[id].image);
 
-    widget[id].image = make_image_from_file(file, IF_MIPMAP);
+    widget[id].image = make_image_from_file(file, IF_MIPMAP, 0);
 }
 
 void gui_set_label(int id, const char *text)
@@ -910,7 +910,7 @@ int gui_image(int pd, const char *file, int w, int h)
 
     if ((id = gui_widget(pd, GUI_IMAGE)))
     {
-        widget[id].image  = make_image_from_file(file, IF_MIPMAP);
+        widget[id].image  = make_image_from_file(file, IF_MIPMAP, 0);
         widget[id].w      = w;
         widget[id].h      = h;
         widget[id].flags |= GUI_RECT;
@@ -1394,7 +1394,13 @@ void gui_layout(int id, int xd, int yd)
 
     /* Hilite the widget under the cursor, if any. */
 
-    gui_point(id, -1, -1);
+    //gui_point(id, -1, -1);
+}
+
+int gui_hit_test(int id, int x, int y)
+{
+    return id && (widget[id].x <= x && x < widget[id].x + widget[id].w &&
+               widget[id].y <= y && y < widget[id].y + widget[id].h);
 }
 
 int gui_search(int id, int x, int y)
@@ -1403,8 +1409,7 @@ int gui_search(int id, int x, int y)
 
     /* Search the hierarchy for the widget containing the given point. */
 
-    if (id && (widget[id].x <= x && x < widget[id].x + widget[id].w &&
-               widget[id].y <= y && y < widget[id].y + widget[id].h))
+    if (gui_hit_test(id, x, y))
     {
         if (gui_hot(id))
             return id;
@@ -1455,7 +1460,7 @@ static void gui_paint_rect(int id, int st, int flags)
     /* Use the widget status to determine the background color. */
 
     i = st | (((widget[id].flags & GUI_HILITE) ? 2 : 0) |
-              ((id == active)                  ? 1 : 0));
+              ((id == hovered)                  ? 1 : 0));
 
     if ((widget[id].flags & GUI_RECT) && !(flags & GUI_RECT))
     {
@@ -2158,13 +2163,15 @@ int gui_click(int b, int d)
     {
         if (d)
         {
-            clicked = hovered;
+            //clicked = hovered;
             return 0;
         }
         else
         {
-            int c = (clicked && clicked == hovered);
-            clicked = 0;
+            //int c = (clicked && clicked == hovered);
+            int c = hovered;
+            //clicked = 0;
+            hovered = 0;
             return c;
         }
     }
@@ -2189,7 +2196,7 @@ int gui_navig(int id, int total, int first, int step)
         {
             gui_maybe(jd, " > ", GUI_NEXT, GUI_NONE, next);
 
-            if ((kd = gui_label(jd, "999/999", GUI_SML, gui_wht, gui_wht)))
+            if ((kd = gui_label(jd, "999/999", GUI_MED, gui_wht, gui_wht)))
             {
                 char str[16];
                 sprintf(str, "%d/%d", page, pages);
@@ -2201,7 +2208,7 @@ int gui_navig(int id, int total, int first, int step)
 
         gui_space(jd);
 
-        gui_start(jd, _("Back"), GUI_SML, GUI_BACK, 0);
+        gui_start(jd, _("Back"), GUI_MED, GUI_BACK, 0);
     }
     return jd;
 }
@@ -2212,11 +2219,11 @@ int gui_maybe(int id, const char *label, int etoken, int dtoken, int enabled)
 
     if (!enabled)
     {
-        bd = gui_state(id, label, GUI_SML, dtoken, 0);
+        bd = gui_state(id, label, GUI_MED, dtoken, 0);
         gui_set_color(bd, gui_gry, gui_gry);
     }
     else
-        bd = gui_state(id, label, GUI_SML, etoken, 0);
+        bd = gui_state(id, label, GUI_MED, etoken, 0);
 
     return bd;
 }

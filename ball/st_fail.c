@@ -94,17 +94,17 @@ static int fail_gui(void)
 
         if ((jd = gui_harray(id)))
         {
-            if (progress_dead())
-                gui_start(jd, _("Exit"), GUI_SML, FAIL_OVER, 0);
+            //if (progress_dead())
+                gui_start(jd, _("Quit"), GUI_MED, FAIL_OVER, 0);
 
             if (progress_next_avail())
-                gui_start(jd, _("Next Level"),  GUI_SML, FAIL_NEXT, 0);
+                gui_start(jd, _("Next"),  GUI_MED, FAIL_NEXT, 0);
 
             if (progress_same_avail())
-                gui_start(jd, _("Retry Level"), GUI_SML, FAIL_SAME, 0);
+                gui_start(jd, _("Retry"), GUI_MED, FAIL_SAME, 0);
 
-            if (demo_saved())
-                gui_state(jd, _("Save Replay"), GUI_SML, FAIL_SAVE, 0);
+            //if (demo_saved())
+            //    gui_state(jd, _("Save Replay"), GUI_MED, FAIL_SAVE, 0);
         }
 
         gui_space(id);

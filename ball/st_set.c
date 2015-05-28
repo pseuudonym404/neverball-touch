@@ -29,13 +29,13 @@
 
 /*---------------------------------------------------------------------------*/
 
-#define SET_STEP 6
+#define SET_STEP 8
 
 static int total = 0;
 static int first = 0;
 
-static int shot_id;
-static int desc_id;
+//static int shot_id;
+//static int desc_id;
 
 static int do_init = 1;
 
@@ -84,20 +84,20 @@ static int set_action(int tok, int val)
     return 1;
 }
 
-static void gui_set(int id, int i)
+/*static void gui_set(int id, int i)
 {
     if (set_exists(i))
-        gui_state(id, set_name(i), GUI_SML, SET_SELECT, i);
+        gui_state(id, set_name(i), GUI_MED, SET_SELECT, i);
     else
-        gui_label(id, "", GUI_SML, 0, 0);
-}
+        gui_label(id, "", GUI_MED, 0, 0);
+}*/
 
 static int set_gui(void)
 {
     int w = video.device_w;
     int h = video.device_h;
 
-    int id, jd, kd;
+    int id, jd, kd, ld;
 
     int i;
 
@@ -105,26 +105,53 @@ static int set_gui(void)
     {
         if ((jd = gui_hstack(id)))
         {
-            gui_label(jd, _("Level Set"), GUI_SML, gui_yel, gui_red);
+            gui_label(jd, _("Level Set"), GUI_MED, gui_yel, gui_red);
+            gui_space(jd);
             gui_filler(jd);
             gui_navig(jd, total, first, SET_STEP);
         }
 
-        gui_space(id);
+        if ((ld = gui_varray(id))) {
+            if ((jd = gui_hstack(ld))) {
+                gui_filler(jd);
+                for (i = first + (SET_STEP / 2) - 1; i >= first; --i) {
+                    if (set_exists(i) && (kd = gui_vstack(jd))) {
+                        gui_space(kd);
+                        gui_image(kd, set_shot(i), w / 5, h / 4);
+                        gui_label(kd, set_name(i), GUI_SML, gui_wht, gui_wht);
+                        gui_set_state(kd, SET_SELECT, i);
+                    }
+                }
+                gui_filler(jd);
+            }
 
-        if ((jd = gui_harray(id)))
+            if ((jd = gui_hstack(ld))) {
+                gui_filler(jd);
+                for (i = first + SET_STEP - 1; i >= first + (SET_STEP / 2); --i) {
+                    if (set_exists(i) && (kd = gui_vstack(jd))) {
+                        gui_space(kd);
+                        gui_image(kd, set_shot(i), w / 5, h / 4);
+                        gui_label(kd, set_name(i), GUI_SML, gui_wht, gui_wht);
+                        gui_set_state(kd, SET_SELECT, i);
+                    }
+                }
+                gui_filler(jd);
+            }
+        }
+
+        /*if ((jd = gui_harray(id)))
         {
             shot_id = gui_image(jd, set_shot(first), 7 * w / 16, 7 * h / 16);
 
-            if ((kd = gui_varray(jd)))
+            if ((jd = gui_varray(id)))
             {
                 for (i = first; i < first + SET_STEP; i++)
-                    gui_set(kd, i);
+                    gui_set(jd, i);
             }
         }
 
         gui_space(id);
-        desc_id = gui_multi(id, " \\ \\ \\ \\ \\", GUI_SML, gui_yel, gui_wht);
+        desc_id = gui_multi(id, " \\ \\ \\ \\ \\", GUI_SML, gui_yel, gui_wht);*/
 
         gui_layout(id, 0, 0);
     }
@@ -149,8 +176,8 @@ static int set_enter(struct state *st, struct state *prev)
 
 static void set_over(int i)
 {
-    gui_set_image(shot_id, set_shot(i));
-    gui_set_multi(desc_id, set_desc(i));
+    //gui_set_image(shot_id, set_shot(i));
+    //gui_set_multi(desc_id, set_desc(i));
 }
 
 static void set_point(int id, int x, int y, int dx, int dy)

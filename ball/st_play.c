@@ -35,6 +35,9 @@
 
 /*---------------------------------------------------------------------------*/
 
+static int hittest = 0;
+static int clickdown = 0;
+
 static void set_camera(int c)
 {
     config_set_d(CONFIG_CAMERA, c);
@@ -421,7 +424,17 @@ static void play_loop_timer(int id, float dt)
 
 static void play_loop_point(int id, int x, int y, int dx, int dy)
 {
-    game_set_pos(dx, dy);
+    hittest = hud_hit_test(x, y);
+    if (!hittest && clickdown) {
+        float r = 1.0f - (((float)x / video.device_w) * 2.0f);
+        if (r > 0.0f)
+            rot_set(DIR_R, +r, 1);
+        else if (r < 0.0f)
+            rot_set(DIR_L, -r, 1);
+        else
+            rot_clr(DIR_L | DIR_R);
+    }
+    //game_set_pos(dx, dy);
 }
 
 static void play_loop_stick(int id, int a, float v, int bump)
@@ -443,7 +456,7 @@ static void play_loop_stick(int id, int a, float v, int bump)
 
 static int play_loop_click(int b, int d)
 {
-    if (d)
+    /*if (d)
     {
         if (config_tst_d(CONFIG_MOUSE_CAMERA_R, b))
             rot_set(DIR_R, 1.0f, 0);
@@ -458,6 +471,20 @@ static int play_loop_click(int b, int d)
             rot_clr(DIR_R);
         if (config_tst_d(CONFIG_MOUSE_CAMERA_L, b))
             rot_clr(DIR_L);
+    }*/
+    clickdown = d;
+    if (d) {
+        if (hittest == 1) {
+            hud_pause();
+            clickdown = 0;
+            goto_state(&st_pause);
+            audio_play(AUD_MENU, 1.0f);
+        } else if (hittest == 2) {
+            next_camera();
+            audio_play(AUD_MENU, 1.0f);
+        }
+    } else {
+        rot_clr(DIR_L | DIR_R);
     }
 
     return 1;

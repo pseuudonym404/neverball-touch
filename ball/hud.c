@@ -38,21 +38,46 @@ static int ball_id;
 static int scor_id;
 static int goal_id;
 static int cam_id;
-static int fps_id;
+//static int fps_id;
+static int pause_id;
 
 static int speed_id;
 static int speed_ids[SPEED_MAX];
+
+static int hud_paused = 0;
+
+void hud_pause(void)
+{
+    hud_paused = 1;
+}
+
+void hud_resume(void)
+{
+    hud_paused = 0;
+}
+
+void hud_demo(void)
+{
+    hud_paused = 2;
+}
 
 static const char *speed_labels[SPEED_MAX] = {
     "", "8", "4", "2", "1", "2", "4", "8"
 };
 
-static float cam_timer;
+//static float cam_timer;
 static float speed_timer;
 
-static void hud_fps(void)
+/*static void hud_fps(void)
 {
     gui_set_count(fps_id, video_perf());
+}*/
+
+int hud_hit_test(int x, int y)
+{
+    if (gui_hit_test(cam_id, x, y)) return 2;
+    if (gui_hit_test(pause_id, x, y)) return 1;
+    return 0;
 }
 
 void hud_init(void)
@@ -105,17 +130,23 @@ void hud_init(void)
         if (strlen(cam_to_str(v)) > strlen(str_cam))
             str_cam = cam_to_str(v);
 
-    if ((cam_id = gui_label(0, str_cam, GUI_SML, gui_wht, gui_wht)))
+    if ((cam_id = gui_label(0, str_cam, GUI_MED, gui_wht, gui_wht)))
     {
         gui_set_rect(cam_id, GUI_SW);
         gui_layout(cam_id, 1, 1);
     }
 
-    if ((fps_id = gui_count(0, 1000, GUI_SML)))
+    if ((pause_id = gui_state(0, _("Pause"), GUI_MED, 0, 0)))
+    {
+        gui_set_rect(pause_id, GUI_SE);
+        gui_layout(pause_id, -1, 1);
+    }
+
+    /*if ((fps_id = gui_count(0, 1000, GUI_SML)))
     {
         gui_set_rect(fps_id, GUI_SE);
         gui_layout(fps_id, -1, 1);
-    }
+    }*/
 
     if ((speed_id = gui_varray(0)))
     {
@@ -137,7 +168,8 @@ void hud_free(void)
     gui_delete(Lhud_id);
     gui_delete(time_id);
     gui_delete(cam_id);
-    gui_delete(fps_id);
+    //gui_delete(fps_id);
+    gui_delete(pause_id);
 
     gui_delete(speed_id);
 
@@ -152,11 +184,17 @@ void hud_paint(void)
 
     gui_paint(Rhud_id);
     gui_paint(time_id);
+    if (!hud_paused) {
+        gui_paint(pause_id);
+        gui_paint(cam_id);
+    } else if (hud_paused == 2) {
+        gui_paint(pause_id);
+    }
 
-    if (config_get_d(CONFIG_FPS))
-        gui_paint(fps_id);
+    /*if (config_get_d(CONFIG_FPS))
+        gui_paint(fps_id);*/
 
-    hud_cam_paint();
+    //hud_cam_paint();
     hud_speed_paint();
 }
 
@@ -253,8 +291,8 @@ void hud_update(int pulse)
             gui_pulse(goal_id, 2.00f);
     }
 
-    if (config_get_d(CONFIG_FPS))
-        hud_fps();
+    /*if (config_get_d(CONFIG_FPS))
+        hud_fps();*/
 }
 
 void hud_timer(float dt)
@@ -264,6 +302,7 @@ void hud_timer(float dt)
     gui_timer(Rhud_id, dt);
     gui_timer(Lhud_id, dt);
     gui_timer(time_id, dt);
+    gui_timer(pause_id, dt);
 
     hud_cam_timer(dt);
     hud_speed_timer(dt);
@@ -275,19 +314,19 @@ void hud_cam_pulse(int c)
 {
     gui_set_label(cam_id, cam_to_str(c));
     gui_pulse(cam_id, 1.2f);
-    cam_timer = 2.0f;
+    //cam_timer = 2.0f;
 }
 
 void hud_cam_timer(float dt)
 {
-    cam_timer -= dt;
+    //cam_timer -= dt;
     gui_timer(cam_id, dt);
 }
 
 void hud_cam_paint(void)
 {
-    if (cam_timer > 0.0f)
-        gui_paint(cam_id);
+    //if (cam_timer > 0.0f)
+    //gui_paint(cam_id);
 }
 
 /*---------------------------------------------------------------------------*/

@@ -8,6 +8,10 @@ void hud_free(void);
 
 void hud_paint(void);
 
+int hud_hit_test(int, int);
+void hud_hide_controls();
+void hud_show_controls();
+
 /*---------------------------------------------------------------------------*/
 
 #endif

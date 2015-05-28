@@ -107,9 +107,9 @@ static int name_gui(void)
 
         if ((jd = gui_harray(id)))
         {
-            enter_id = gui_start(jd, _("OK"), GUI_SML, NAME_OK, 0);
+            enter_id = gui_start(jd, _("OK"), GUI_MED, NAME_OK, 0);
             gui_space(jd);
-            gui_state(jd, _("Cancel"), GUI_SML, GUI_BACK, 0);
+            gui_state(jd, _("Cancel"), GUI_MED, GUI_BACK, 0);
         }
 
         gui_layout(id, 0, 0);

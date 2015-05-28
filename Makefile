@@ -1,3 +1,5 @@
+CC := arm-linux-gnueabihf-gcc
+CXX := arm-linux-gnueabihf-g++
 
 #------------------------------------------------------------------------------
 
@@ -20,7 +22,7 @@ endif
 #------------------------------------------------------------------------------
 # Paths (packagers might want to set DATADIR and LOCALEDIR)
 
-USERDIR   := .neverball
+USERDIR   := .config/neverball
 DATADIR   := ./data
 LOCALEDIR := ./locale
 
@@ -28,9 +30,9 @@ ifeq ($(PLATFORM),mingw)
 	USERDIR := Neverball
 endif
 
-ifneq ($(BUILD),release)
-	USERDIR := $(USERDIR)-dev
-endif
+#ifneq ($(BUILD),release)
+#USERDIR := $(USERDIR)-dev
+#endif
 
 #------------------------------------------------------------------------------
 # Optional flags (CFLAGS, CPPFLAGS, ...)
@@ -40,8 +42,8 @@ ifeq ($(DEBUG),1)
 	CXXFLAGS := -g
 	CPPFLAGS :=
 else
-	CFLAGS   := -O2
-	CXXFLAGS := -O2
+	CFLAGS   := -O2 -g
+	CXXFLAGS := -O2 -g
 	CPPFLAGS := -DNDEBUG
 endif
 
@@ -64,7 +66,7 @@ ALL_CXXFLAGS := -fno-rtti -fno-exceptions $(CXXFLAGS)
 
 # Preprocessor...
 
-SDL_CPPFLAGS := $(shell sdl2-config --cflags)
+SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL2-2.0.3/install/bin/sdl2-config --cflags)
 PNG_CPPFLAGS := $(shell libpng-config --cflags)
 
 ALL_CPPFLAGS := $(SDL_CPPFLAGS) $(PNG_CPPFLAGS) -Ishare
@@ -124,7 +126,7 @@ ALL_CPPFLAGS += $(HMD_CPPFLAGS)
 #------------------------------------------------------------------------------
 # Libraries
 
-SDL_LIBS := $(shell sdl2-config --libs)
+SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL2-2.0.3/install/bin/sdl2-config --libs)
 PNG_LIBS := $(shell libpng-config --libs)
 
 ifeq ($(ENABLE_FS),stdio)
@@ -148,11 +150,15 @@ ifeq ($(ENABLE_TILT),loop)
 else
 ifeq ($(ENABLE_TILT),leapmotion)
 	TILT_LIBS := /usr/lib/Leap/libLeap.so -Wl,-rpath,/usr/lib/Leap
+else
+ifeq ($(ENABLE_TILT),ubuntu)
+	TILT_LIBS := -lubuntu_application_api
+endif
 endif
 endif
 endif
 
-OGL_LIBS := -lGL
+OGL_LIBS := -L$(PWD)/lib -lGLESv1_CM -lhybris-common
 
 ifeq ($(PLATFORM),mingw)
 	ifneq ($(ENABLE_NLS),0)
@@ -204,7 +210,7 @@ PUTT_TARG := neverputt$(EXT)
 ifeq ($(PLATFORM),mingw)
 	MAPC := $(WINE) ./$(MAPC_TARG)
 else
-	MAPC := ./$(MAPC_TARG)
+	MAPC := ./$(MAPC_TARG).x86_64
 endif
 
 #------------------------------------------------------------------------------
@@ -357,10 +363,14 @@ else
 ifeq ($(ENABLE_TILT),loop)
 BALL_OBJS += share/tilt_loop.o
 else
+ifeq ($(ENABLE_TILT),ubuntu)
+BALL_OBJS += share/tilt_ubuntu.o
+else
 ifeq ($(ENABLE_TILT),leapmotion)
 BALL_OBJS += share/tilt_leapmotion.o
 else
 BALL_OBJS += share/tilt_null.o
+endif
 endif
 endif
 endif

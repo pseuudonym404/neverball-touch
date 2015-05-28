@@ -107,6 +107,7 @@ void gui_dump(int, int);
 void gui_layout(int, int, int);
 int  gui_search(int, int, int);
 int  gui_delete(int);
+int  gui_hit_test(int, int, int);
 
 /*---------------------------------------------------------------------------*/
 
@@ -141,6 +142,7 @@ enum
     GUI_CHAR,
     GUI_NAME,
     GUI_SCORE,
+    GUI_SAVE,
 
     GUI_LAST
 };

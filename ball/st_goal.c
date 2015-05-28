@@ -61,7 +61,7 @@ static int goal_action(int tok, int val)
         progress_stop();
         return goto_state(&st_exit);
 
-    case GOAL_SAVE:
+    case GUI_SAVE:
         progress_stop();
         return goto_save(&st_goal, &st_goal);
 
@@ -107,14 +107,7 @@ static int goal_gui(void)
 
     if ((id = gui_vstack(0)))
     {
-        int gid;
-
-        if (high)
-            gid = gui_label(id, s1, GUI_MED, gui_grn, gui_grn);
-        else
-            gid = gui_label(id, s2, GUI_LRG, gui_blu, gui_grn);
-
-        gui_space(id);
+        int gid = 0;
 
         if (curr_mode() == MODE_CHALLENGE)
         {
@@ -151,19 +144,19 @@ static int goal_gui(void)
                         if ((md = gui_harray(ld)))
                         {
                             balls_id = gui_count(md, 100, GUI_MED);
-                            gui_label(md, _("Balls"), GUI_SML,
+                            gui_label(md, _("Balls"), GUI_MED,
                                       gui_wht, gui_wht);
                         }
                         if ((md = gui_harray(ld)))
                         {
                             score_id = gui_count(md, 1000, GUI_MED);
-                            gui_label(md, _("Score"), GUI_SML,
+                            gui_label(md, _("Score"), GUI_MED,
                                       gui_wht, gui_wht);
                         }
                         if ((md = gui_harray(ld)))
                         {
                             coins_id = gui_count(md, 100, GUI_MED);
-                            gui_label(md, _("Coins"), GUI_SML,
+                            gui_label(md, _("Coins"), GUI_MED,
                                       gui_wht, gui_wht);
                         }
 
@@ -200,33 +193,39 @@ static int goal_gui(void)
         }
         else
         {
+            gid = gui_label(id, high ? s1 : s2, GUI_LRG, gui_blu, gui_grn);
+            gui_space(id);
+
             balls_id = score_id = coins_id = 0;
         }
 
         gui_score_board(id, (GUI_SCORE_COIN |
                              GUI_SCORE_TIME |
-                             GUI_SCORE_GOAL), 1, high);
+                             GUI_SCORE_GOAL |
+                             GUI_SCORE_SAVE), 1, high);
 
         gui_space(id);
 
         if ((jd = gui_harray(id)))
         {
             if      (progress_done())
-                gui_start(jd, _("Finish"), GUI_SML, GOAL_DONE, 0);
+                gui_start(jd, _("Finish"), GUI_MED, GOAL_DONE, 0);
             else if (progress_last())
-                gui_start(jd, _("Finish"), GUI_SML, GOAL_LAST, 0);
+                gui_start(jd, _("Finish"), GUI_MED, GOAL_LAST, 0);
 
             if (progress_next_avail())
-                gui_start(jd, _("Next Level"),  GUI_SML, GOAL_NEXT, 0);
+                gui_start(jd, _("Next"),  GUI_MED, GOAL_NEXT, 0);
 
             if (progress_same_avail())
-                gui_start(jd, _("Retry Level"), GUI_SML, GOAL_SAME, 0);
+                gui_start(jd, _("Retry"), GUI_MED, GOAL_SAME, 0);
 
-            if (demo_saved())
-                gui_state(jd, _("Save Replay"), GUI_SML, GOAL_SAVE, 0);
+            if (!progress_done() && !progress_last())
+                gui_start(jd, _("Quit"), GUI_MED, GOAL_DONE, 0);
+            //if (demo_saved())
+            //    gui_state(jd, _("Save Replay"), GUI_SML, GOAL_SAVE, 0);
         }
 
-        if (!resume)
+        if (!resume && gid)
             gui_pulse(gid, 1.2f);
 
         gui_layout(id, 0, 0);

@@ -78,7 +78,7 @@ static int help_action(int tok, int val)
 
 static int help_button(int id, const char *text, int token, int value)
 {
-    int jd = gui_state(id, text, GUI_SML, token, value);
+    int jd = gui_state(id, text, GUI_MED, token, value);
 
     /* Hilight current page. */
 
@@ -101,7 +101,7 @@ static int help_menu(int id)
     {
         help_button(jd, _("Tricks"),   HELP_PAGE, PAGE_TRICKS);
         help_button(jd, _("Modes"),    HELP_PAGE, PAGE_MODES);
-        help_button(jd, _("Controls"), HELP_PAGE, PAGE_CONTROLS);
+        //help_button(jd, _("Controls"), HELP_PAGE, PAGE_CONTROLS);
         help_button(jd, _("Rules"),    HELP_PAGE, PAGE_RULES);
         help_button(jd, _("Back"),     GUI_BACK, 0);
     }
@@ -113,10 +113,8 @@ static int help_menu(int id)
 static int page_rules(int id)
 {
     const char *s0 = _(
-        "Move the mouse or joystick\\"
-        "or use keyboard arrows to\\"
-        "tilt the floor causing the\\"
-        "ball to roll.\\");
+        "Tilt your device to cause\\"
+        "the ball to roll.\\");
     const char *s1 = _(
         "Roll over coins to collect\\"
         "them.  Collect coins to\\"
@@ -156,14 +154,14 @@ static int page_rules(int id)
             if ((ld = gui_vstack(kd)))
             {
                 gui_space(ld);
-                gui_image(ld, "gui/help1.jpg", 5 * w / 16, 5 * h / 16);
+                gui_image(ld, "gui/help1.jpg", 5 * w / 16, 6 * h / 17);
                 gui_filler(ld);
             }
 
             if ((ld = gui_vstack(kd)))
             {
                 gui_space(ld);
-                gui_image(ld, "gui/help2.jpg", 5 * w / 16, 5 * h / 16);
+                gui_image(ld, "gui/help2.jpg", 5 * w / 16, 6 * h / 17);
                 gui_filler(ld);
             }
         }
@@ -244,7 +242,7 @@ static int page_modes(int id)
 
     if ((jd = gui_vstack(id)))
     {
-        gui_label(jd, _("Normal Mode"), GUI_SML, 0, 0);
+        gui_label(jd, _("Normal Mode"), GUI_MED, 0, 0);
         gui_multi(jd,
                   _("Finish a level before the time runs out.\\"
                     "You need to collect coins in order to open the goal."),
@@ -257,7 +255,7 @@ static int page_modes(int id)
 
     if ((jd = gui_vstack(id)))
     {
-        gui_label(jd, _("Challenge Mode"), GUI_SML, 0, 0);
+        gui_label(jd, _("Challenge Mode"), GUI_MED, 0, 0);
         gui_multi(jd,
                   _("Start playing from the first level of the set.\\"
                     "You start with only three balls, do not lose them.\\"
@@ -297,7 +295,7 @@ static int page_tricks(int id)
             if ((ld = gui_vstack(kd)))
             {
                 gui_space(ld);
-                gui_image(ld, "gui/help3.jpg", w / 4, h / 4);
+                gui_image(ld, "gui/help3.jpg", w * 2 / 9, h * 2 / 7);
                 gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
                 gui_filler(ld);
 
@@ -307,7 +305,7 @@ static int page_tricks(int id)
             if ((ld = gui_vstack(kd)))
             {
                 gui_space(ld);
-                gui_image(ld, "gui/help4.jpg", w / 4, h / 4);
+                gui_image(ld, "gui/help4.jpg", w * 2 / 9, h * 2 / 7);
                 gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
                 gui_filler(ld);
 

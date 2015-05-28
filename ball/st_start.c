@@ -28,6 +28,8 @@
 #include "st_title.h"
 #include "st_shared.h"
 
+#define START_STEP 10
+
 /*---------------------------------------------------------------------------*/
 
 enum
@@ -37,15 +39,16 @@ enum
     START_LEVEL
 };
 
-static int shot_id;
-static int file_id;
+//static int shot_id;
+//static int file_id;
 static int challenge_id;
+static int first = 0;
 
 /*---------------------------------------------------------------------------*/
 
 /* Create a level selector button based upon its existence and status. */
 
-static void gui_level(int id, int i)
+static void gui_level(int id, int i, int w, int h)
 {
     struct level *l = get_level(i);
 
@@ -56,7 +59,7 @@ static void gui_level(int id, int i)
 
     if (!l)
     {
-        gui_label(id, " ", GUI_SML, gui_blk, gui_blk);
+        //gui_label(id, " ", GUI_MED, gui_blk, gui_blk);
         return;
     }
 
@@ -66,15 +69,18 @@ static void gui_level(int id, int i)
         back = level_completed(l) ? fore    : gui_yel;
     }
 
-    jd = gui_label(id, level_name(l), GUI_SML, back, fore);
-
-    if (level_opened(l) || config_cheat())
-        gui_set_state(jd, START_LEVEL, i);
+    if ((jd = gui_vstack(id))) {
+        gui_space(jd);
+        gui_image(jd, level_shot(l), w, h);
+        gui_label(jd, level_name(l), GUI_SML, back, fore);
+        if (level_opened(l) || config_cheat())
+            gui_set_state(jd, START_LEVEL, i);
+    }
 }
 
 static void start_over_level(int i)
 {
-    struct level *l = get_level(i);
+    /*struct level *l = get_level(i);
 
     if (level_opened(l) || config_cheat())
     {
@@ -86,7 +92,7 @@ static void start_over_level(int i)
 
         if (file_id)
             gui_set_label(file_id, level_file(l));
-    }
+    }*/
 }
 
 static void start_over(int id, int pulse)
@@ -100,14 +106,14 @@ static void start_over(int id, int pulse)
         {
             start_over_level(gui_value(id));
         }
-        else
+        /*else
         {
             gui_set_image(shot_id, set_shot(curr_set()));
 
             set_score_board(set_score(curr_set(), SCORE_COIN), -1,
                             set_score(curr_set(), SCORE_TIME), -1,
                             NULL, -1);
-        }
+        }*/
     }
 }
 
@@ -121,6 +127,14 @@ static int start_action(int tok, int val)
     {
     case GUI_BACK:
         return goto_state(&st_set);
+
+    case GUI_PREV:
+        first -= START_STEP;
+        return goto_state(&st_start);
+
+    case GUI_NEXT:
+        first += START_STEP;
+        return goto_state(&st_start);
 
     case START_CHALLENGE:
         if (config_cheat())
@@ -160,23 +174,63 @@ static int start_gui(void)
 {
     int w = video.device_w;
     int h = video.device_h;
-    int i, j;
+    int i;
 
-    int id, jd, kd, ld;
+    int id, jd, kd;
 
-    if ((id = gui_vstack(0)))
-    {
-        if ((jd = gui_hstack(id)))
-        {
+    if ((id = gui_vstack(0))) {
+        if ((jd = gui_hstack(id))) {
 
-            gui_label(jd, set_name(curr_set()), GUI_SML, gui_yel, gui_red);
+            gui_label(jd, set_name(curr_set()), GUI_MED, gui_yel, gui_red);
+            gui_space(jd);
             gui_filler(jd);
-            gui_start(jd, _("Back"),  GUI_SML, GUI_BACK, 0);
+            gui_navig(jd, 25, first, START_STEP);
+        }
+
+        if ((jd = gui_varray(id))) {
+            if ((kd = gui_hstack(jd))) {
+                gui_filler(kd);
+                for (i = first + (START_STEP / 2) - 1; i >= first; --i)
+                    gui_level(kd, i, w / 6, h / 5);
+                gui_filler(kd);
+            }
+
+            if ((kd = gui_hstack(jd))) {
+                gui_filler(kd);
+                for (i = first + START_STEP  - 1; i >= first + (START_STEP / 2); --i)
+                    gui_level(kd, i, w / 6, h / 5);
+                gui_filler(kd);
+            }
         }
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)))
+        if ((jd = gui_hstack(id))) {
+            if ((kd = gui_harray(jd)))
+            {
+                int btn0, btn1;
+
+                btn0 = gui_state(kd, _("Unlocked"), GUI_MED, START_LOCK_GOALS, 0);
+                btn1 = gui_state(kd, _("Locked"),   GUI_MED, START_LOCK_GOALS, 1);
+
+                if (config_get_d(CONFIG_LOCK_GOALS))
+                    gui_set_hilite(btn1, 1);
+                else
+                    gui_set_hilite(btn0, 1);
+            }
+            gui_label(jd, _("Goal"), GUI_MED, 0, 0);
+
+            gui_space(jd);
+            gui_filler(jd);
+
+            challenge_id = gui_state(jd, _("Challenge"), GUI_MED, START_CHALLENGE, 0);
+            gui_set_hilite(challenge_id, curr_mode() == MODE_CHALLENGE);
+        }
+
+        gui_layout(id, 0, 0);
+    }
+
+        /*if ((jd = gui_harray(id)))
         {
             if (config_cheat())
             {
@@ -191,21 +245,21 @@ static int start_gui(void)
             {
                 shot_id = gui_image(jd, set_shot(curr_set()),
                                     7 * w / 16, 7 * h / 16);
-            }
+            }*/
 
-            if ((kd = gui_varray(jd)))
+            /*if ((jd = gui_varray(id)))
             {
                 for (i = 0; i < 5; i++)
-                    if ((ld = gui_harray(kd)))
+                    if ((kd = gui_harray(jd)))
                         for (j = 4; j >= 0; j--)
-                            gui_level(ld, i * 5 + j);
+                            gui_level(kd, i * 5 + j);
 
-                challenge_id = gui_state(kd, _("Challenge"), GUI_SML,
+                challenge_id = gui_state(jd, _("Challenge"), GUI_MED,
                                          START_CHALLENGE, 0);
 
                 gui_set_hilite(challenge_id, curr_mode() == MODE_CHALLENGE);
-            }
-        }
+            }*/
+        /*}
         gui_space(id);
         gui_score_board(id, (GUI_SCORE_COIN |
                              GUI_SCORE_TIME |
@@ -234,15 +288,12 @@ static int start_gui(void)
             gui_label(jd, _("Goal State in Completed Levels"), GUI_SML, 0, 0);
 
             gui_filler(jd);
-        }
+        }*/
 
-        gui_layout(id, 0, 0);
-
-        if (file_id)
+        /*if (file_id)
             gui_set_trunc(file_id, TRUNC_HEAD);
 
-        set_score_board(NULL, -1, NULL, -1, NULL, -1);
-    }
+        set_score_board(NULL, -1, NULL, -1, NULL, -1);*/
 
     return id;
 }

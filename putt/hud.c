@@ -24,9 +24,29 @@
 
 static int Lhud_id;
 static int Rhud_id;
-static int fps_id;
+static int take_shot_id;
+static int pause_id;
+static int hide_controls = 1;
+//static int fps_id;
 
 /*---------------------------------------------------------------------------*/
+
+int hud_hit_test(int x, int y)
+{
+    if (gui_hit_test(take_shot_id, x, y)) return 2;
+    if (gui_hit_test(pause_id, x, y)) return 1;
+    return 0;
+}
+
+void hud_hide_controls(void)
+{
+    hide_controls = 1;
+}
+
+void hud_show_controls(void)
+{
+    hide_controls = 0;
+}
 
 void hud_init(void)
 {
@@ -53,32 +73,49 @@ void hud_init(void)
         gui_set_rect(Rhud_id, GUI_NW);
         gui_layout(Rhud_id, +1, -1);
     }
-    if ((fps_id = gui_count(0, 1000, GUI_SML)))
+    if ((pause_id = gui_label(0, _("Pause"), GUI_MED, gui_wht, gui_wht)))
+    {
+        gui_set_rect(pause_id, GUI_SE);
+        gui_layout(pause_id, -1, 1);
+    }
+    if ((take_shot_id = gui_label(0, _("Play"), GUI_MED, gui_wht, gui_wht)))
+    {
+        gui_set_rect(take_shot_id, GUI_SW);
+        gui_layout(take_shot_id, 1, 1);
+    }
+    
+    /*if ((fps_id = gui_count(0, 1000, GUI_SML)))
     {
         gui_set_rect(fps_id, GUI_SE);
         gui_layout(fps_id, -1, +1);
-    }
+    }*/
 }
 
 void hud_free(void)
 {
     gui_delete(Lhud_id);
     gui_delete(Rhud_id);
-    gui_delete(fps_id);
+    gui_delete(take_shot_id);
+    gui_delete(pause_id);
+    //gui_delete(fps_id);
 }
 
 /*---------------------------------------------------------------------------*/
 
 void hud_paint(void)
 {
-    if (config_get_d(CONFIG_FPS))
+    /*if (config_get_d(CONFIG_FPS))
     {
         gui_set_count(fps_id, video_perf());
         gui_paint(fps_id);
-    }
+    }*/
 
     gui_paint(Rhud_id);
     gui_paint(Lhud_id);
+    if (!hide_controls) {
+        gui_paint(take_shot_id);
+        gui_paint(pause_id);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

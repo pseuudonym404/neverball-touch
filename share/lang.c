@@ -29,11 +29,12 @@
 
 #define GT_CODESET "UTF-8"
 
+static int  default_lang_init = 0;
+static char default_lang[MAXSTR];
+
 void gt_init(const char *domain, const char *pref)
 {
 #if ENABLE_NLS
-    static char default_lang[MAXSTR];
-    static int  default_lang_init;
 
     char *dir = strdup(getenv("NEVERBALL_LOCALE"));
 
@@ -231,9 +232,13 @@ static int lang_status;
 
 void lang_init(void)
 {
-    lang_quit();
     lang_load(&curr_lang, lang_path(config_get_s(CONFIG_LANGUAGE)));
-    gt_init("neverball", curr_lang.code);
+    if (lang_status) {
+        set_env_var("LANGUAGE", curr_lang.code);
+        textdomain("neverball");
+    } else {
+        gt_init("neverball", curr_lang.code);
+    }
     lang_status = 1;
 }
 

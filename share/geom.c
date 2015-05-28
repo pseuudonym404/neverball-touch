@@ -444,7 +444,7 @@ void back_init(const char *name)
     if (sol_load_full(&back, "geom/back/back.sol", 0))
     {
         struct mtrl *mp = mtrl_get(back.base.mtrls[0]);
-        mp->o = make_image_from_file(name, IF_MIPMAP);
+        mp->o = make_image_from_file(name, IF_MIPMAP, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         back_state = 1;
     }
@@ -578,7 +578,7 @@ static GLubyte clip_data[] = { 0xff, 0xff, 0x0, 0x0 };
 
 void shad_init(void)
 {
-    shad_text = make_image_from_file(IMG_SHAD, IF_MIPMAP);
+    shad_text = make_image_from_file(IMG_SHAD, IF_MIPMAP, 0);
 
     if (config_get_d(CONFIG_SHADOW) == 2)
     {

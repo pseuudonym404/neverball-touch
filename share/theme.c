@@ -63,7 +63,7 @@ static GLuint theme_image(const char *path)
             p = q;
         }
 
-        o = make_texture(p, w, h, b, 0);
+        o = make_texture(p, w, h, b, 0, 0);
 
         free(p);
         p = NULL;

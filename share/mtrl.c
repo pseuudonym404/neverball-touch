@@ -81,7 +81,7 @@ static int find_mtrl(const char *name)
 /*
  * Load a material texture.
  */
-static GLuint find_texture(const char *name)
+static GLuint find_texture(const char *name, int env)
 {
     char path[MAXSTR];
     GLuint o;
@@ -91,7 +91,7 @@ static GLuint find_texture(const char *name)
     {
         CONCAT_PATH(path, &tex_paths[i], name);
 
-        if ((o = make_image_from_file(path, IF_MIPMAP)))
+        if ((o = make_image_from_file(path, IF_MIPMAP, env)))
             return o;
     }
     return 0;
@@ -109,7 +109,7 @@ static void load_mtrl_objects(struct mtrl *mp)
 
     /* Load the texture. */
 
-    if ((mp->o = find_texture(_(mp->base.f))))
+    if ((mp->o = find_texture(_(mp->base.f), mp->base.fl & M_ENVIRONMENT)))
     {
         /* Set the texture to clamp or repeat based on material type. */
 

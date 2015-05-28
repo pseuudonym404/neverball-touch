@@ -44,12 +44,12 @@ void conf_slider(int id, const char *text,
 
         for (i = num - 1; i >= 0; i--)
         {
-            ids[i] = gui_state(kd, NULL, GUI_SML, token, i);
+            ids[i] = gui_state(kd, NULL, GUI_MED, token, i);
 
             gui_set_hilite(ids[i], (i == value));
         }
 
-        gui_label(jd, text, GUI_SML, 0, 0);
+        gui_label(jd, text, GUI_MED, 0, 0);
     }
 }
 
@@ -59,8 +59,8 @@ int conf_state(int id, const char *label, const char *text, int token)
 
     if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
     {
-        rd = gui_state(kd, text, GUI_SML, token, 0);
-        gui_label(jd, label, GUI_SML, 0, 0);
+        rd = gui_state(kd, text, GUI_MED, token, 0);
+        gui_label(jd, label, GUI_MED, 0, 0);
     }
 
     return rd;
@@ -76,13 +76,13 @@ void conf_toggle(int id, const char *label, int token, int value,
     {
         int btn0, btn1;
 
-        btn0 = gui_state(kd, text0, GUI_SML, token, value0);
-        btn1 = gui_state(kd, text1, GUI_SML, token, value1);
+        btn0 = gui_state(kd, text0, GUI_MED, token, value0);
+        btn1 = gui_state(kd, text1, GUI_MED, token, value1);
 
         gui_set_hilite(btn0, (value == value0));
         gui_set_hilite(btn1, (value == value1));
 
-        gui_label(jd, label, GUI_SML, 0, 0);
+        gui_label(jd, label, GUI_MED, 0, 0);
     }
 }
 
@@ -92,9 +92,9 @@ void conf_header(int id, const char *text, int token)
 
     if ((jd = gui_harray(id)))
     {
-        gui_label(jd, text, GUI_SML, 0, 0);
+        gui_label(jd, text, GUI_MED, 0, 0);
         gui_space(jd);
-        gui_start(jd, _("Back"), GUI_SML, token, 0);
+        gui_start(jd, _("Back"), GUI_MED, token, 0);
     }
 
     gui_space(id);
@@ -110,13 +110,13 @@ void conf_select(int id, const char *text, int token, int value,
     {
         for (i = 0; i < num; i++)
         {
-            ld = gui_state(kd, _(opts[i].text), GUI_SML,
+            ld = gui_state(kd, _(opts[i].text), GUI_MED,
                            token, opts[i].value);
 
             gui_set_hilite(ld, (opts[i].value == value));
         }
 
-        gui_label(jd, text, GUI_SML, 0, 0);
+        gui_label(jd, text, GUI_MED, 0, 0);
     }
 }
 
@@ -583,7 +583,7 @@ static int resol_enter(struct state *st, struct state *prev)
 
 /*---------------------------------------------------------------------------*/
 
-#define LANG_STEP 10
+#define LANG_STEP 7
 
 static Array langs;
 static int   first;
@@ -652,7 +652,7 @@ static int lang_gui(void)
     {
         if ((jd = gui_hstack(id)))
         {
-            gui_label(jd, _("Language"), GUI_SML, 0, 0);
+            gui_label(jd, _("Language"), GUI_MED, 0, 0);
             gui_space(jd);
             gui_space(jd);
             gui_navig(jd, array_len(langs), first, LANG_STEP);
@@ -663,7 +663,7 @@ static int lang_gui(void)
         if (step < LANG_STEP)
         {
             int default_id;
-            default_id = gui_state(id, _("Default"), GUI_SML, LANG_DEFAULT, 0);
+            default_id = gui_state(id, _("Default"), GUI_MED, LANG_DEFAULT, 0);
             gui_set_hilite(default_id, !*config_get_s(CONFIG_LANGUAGE));
         }
 
@@ -675,7 +675,7 @@ static int lang_gui(void)
 
                 int lang_id;
 
-                lang_id = gui_state(id, " ", GUI_SML, LANG_SELECT, i);
+                lang_id = gui_state(id, " ", GUI_MED, LANG_SELECT, i);
 
                 gui_set_hilite(lang_id, (strcmp(config_get_s(CONFIG_LANGUAGE),
                                                 desc->code) == 0));
@@ -687,7 +687,7 @@ static int lang_gui(void)
             }
             else
             {
-                gui_label(id, " ", GUI_SML, 0, 0);
+                gui_label(id, " ", GUI_MED, 0, 0);
             }
         }
 

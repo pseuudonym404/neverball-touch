@@ -208,6 +208,33 @@ static int loop(void)
             d = st_click(e.button.button, 0);
             break;
 
+        case SDL_FINGERMOTION:
+        case SDL_FINGERDOWN:
+        case SDL_FINGERUP:
+            /* Convert to OpenGL coordinates. */
+
+            ax = e.tfinger.y * video.window_w;
+            ay = e.tfinger.x * video.window_h;
+            dx = e.tfinger.dy * video.window_w;
+            dy = e.tfinger.dx * video.window_h;
+
+            /* Convert to pixels. */
+
+            ax = ROUND(ax * video.device_scale);
+            ay = ROUND(ay * video.device_scale);
+            dx = ROUND(dx * video.device_scale);
+            dy = ROUND(dy * video.device_scale);
+
+            st_point(ax, ay, dx, dy);
+
+            if (e.type == SDL_FINGERDOWN) {
+                d = st_click(SDL_BUTTON_LEFT, 1);
+            } else if (e.type == SDL_FINGERUP) {
+                d = st_click(SDL_BUTTON_LEFT, 0);
+                st_point(0, 0, 0, 0);
+            }
+            break;
+
         case SDL_KEYDOWN:
             d = handle_key_dn(&e);
             break;
@@ -273,9 +300,9 @@ static int loop(void)
     {
         int b;
         int s;
+        float sense = (650.0f - config_get_d(CONFIG_MOUSE_SENSE)) / 250.0f;
 
-        st_angle(tilt_get_x(),
-                 tilt_get_z());
+        st_angle(tilt_get_x() * sense, tilt_get_z() * sense);
 
         while (tilt_get_button(&b, &s))
         {

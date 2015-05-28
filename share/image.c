@@ -102,7 +102,7 @@ void image_snap(const char *filename)
 /*
  * Create an OpenGL texture object using the given image buffer.
  */
-GLuint make_texture(const void *p, int w, int h, int b, int fl)
+GLuint make_texture(const void *p, int w, int h, int b, int fl, int env)
 {
     static const GLenum format[] =
         { 0, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_RGB, GL_RGBA };
@@ -134,28 +134,45 @@ GLuint make_texture(const void *p, int w, int h, int b, int fl)
     /* Generate and configure a new OpenGL texture. */
 
     glGenTextures(1, &o);
-    glBindTexture(GL_TEXTURE_2D, o);
+    GLenum target = GL_TEXTURE_2D;
+#if ENABLE_OPENGLES
+    if (env) {
+        target = GL_TEXTURE_CUBE_MAP_OES;
+        glBindTexture(GL_TEXTURE_CUBE_MAP_OES, o);
+    } else
+#endif
+    glBindTexture(target, o);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #ifdef GL_GENERATE_MIPMAP_SGIS
     if (m)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+        glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
                         GL_LINEAR_MIPMAP_LINEAR);
     }
 #endif
 #ifdef GL_TEXTURE_MAX_ANISOTROPY_EXT
-    if (a) glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, a);
+    if (a) glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, a);
 #endif
 
     /* Copy the image to an OpenGL texture. */
 
+#if ENABLE_OPENGLES
+    if (env) {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_OES, 0, format[b], W, H, 0, format[b], GL_UNSIGNED_BYTE, q ? q : p);
+    } else
+#endif
     glTexImage2D(GL_TEXTURE_2D, 0,
                  format[b], W, H, 0,
                  format[b], GL_UNSIGNED_BYTE, q ? q : p);
@@ -169,7 +186,7 @@ GLuint make_texture(const void *p, int w, int h, int b, int fl)
 /*
  * Load an image from the named file.  Return an OpenGL texture object.
  */
-GLuint make_image_from_file(const char *filename, int fl)
+GLuint make_image_from_file(const char *filename, int fl, int env)
 {
     void  *p;
     int    w;
@@ -181,7 +198,7 @@ GLuint make_image_from_file(const char *filename, int fl)
 
     if ((p = image_load(filename, &w, &h, &b)))
     {
-        o = make_texture(p, w, h, b, fl);
+        o = make_texture(p, w, h, b, fl, env);
         free(p);
     }
 
@@ -249,7 +266,7 @@ GLuint make_image_from_font(int *W, int *H,
 
             /* Create the OpenGL texture object. */
 
-            o = make_texture(p, w2, h2, b, fl);
+            o = make_texture(p, w2, h2, b, fl, 0);
 
             free(p);
             SDL_FreeSurface(src);

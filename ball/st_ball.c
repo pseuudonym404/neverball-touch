@@ -177,24 +177,24 @@ static int ball_gui(void)
     {
         if ((jd = gui_harray(id)))
         {
-            gui_label(jd, _("Ball Model"), GUI_SML, 0, 0);
+            gui_label(jd, _("Ball Model"), GUI_MED, 0, 0);
             gui_space(jd);
-            gui_start(jd, _("Back"), GUI_SML, GUI_BACK, 0);
+            gui_start(jd, _("Back"), GUI_MED, GUI_BACK, 0);
         }
 
         gui_space(id);
 
         if ((jd = gui_hstack(id)))
         {
-            gui_state(jd, " > ", GUI_SML, GUI_NEXT, 0);
+            gui_state(jd, " > ", GUI_MED, GUI_NEXT, 0);
 
-            name_id = gui_label(jd, "very-long-ball-name", GUI_SML,
+            name_id = gui_label(jd, "very-long-ball-name", GUI_MED,
                                 gui_wht, gui_wht);
 
             gui_set_trunc(name_id, TRUNC_TAIL);
             gui_set_fill(name_id);
 
-            gui_state(jd, " < ", GUI_SML, GUI_PREV, 0);
+            gui_state(jd, " < ", GUI_MED, GUI_PREV, 0);
         }
 
         for (i = 0; i < 12; i++)

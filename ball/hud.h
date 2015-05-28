@@ -18,6 +18,11 @@ void hud_speed_pulse(int);
 void hud_speed_timer(float);
 void hud_speed_paint();
 
+int hud_hit_test(int, int);
+void hud_pause();
+void hud_resume();
+void hud_demo();
+
 /*---------------------------------------------------------------------------*/
 
 #endif

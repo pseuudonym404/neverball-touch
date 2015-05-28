@@ -154,6 +154,10 @@ int video_mode(int f, int w, int h)
         SDL_DestroyWindow(window);
     }
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_EGL, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1); 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0); 
+
     SDL_GL_SetAttribute(SDL_GL_STEREO,             stereo);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,       stencil);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, buffers);
@@ -168,6 +172,13 @@ int video_mode(int f, int w, int h)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     /* Try to set the currently specified mode. */
+
+    SDL_DisplayMode mode;
+    if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+        w = mode.w;
+        h = mode.h;
+    }
+    f = SDL_TRUE;
 
     log_printf("Creating a window (%dx%d, %s)\n",
                w, h, (f ? "fullscreen" : "windowed"));
@@ -222,44 +233,44 @@ int video_mode(int f, int w, int h)
 
             if (SDL_GetDesktopDisplayMode(video_display(), &dm) == 0)
             {
-                video.window_w = dm.w;
-                video.window_h = dm.h;
+                video.window_h = dm.w;
+                video.window_w = dm.h;
             }
         }
         else
         {
-            SDL_GetWindowSize(window, &video.window_w, &video.window_h);
+            SDL_GetWindowSize(window, &video.window_h, &video.window_w);
         }
 
         if (highdpi)
         {
-            SDL_GL_GetDrawableSize(window, &video.device_w, &video.device_h);
+            SDL_GL_GetDrawableSize(window, &video.device_h, &video.device_w);
         }
         else
         {
-            video.device_w = video.window_w;
-            video.device_h = video.window_h;
+            video.device_h = video.window_w;
+            video.device_w = video.window_h;
         }
 
         video.device_scale = (float) video.device_h / (float) video.window_h;
 
         log_printf("Created a window (%u, %dx%d, %s)\n",
                    SDL_GetWindowID(window),
-                   video.window_w, video.window_h,
+                   video.window_h, video.window_w,
                    (f ? "fullscreen" : "windowed"));
 
         config_set_d(CONFIG_DISPLAY,    video_display());
         config_set_d(CONFIG_FULLSCREEN, f);
-        config_set_d(CONFIG_WIDTH,      video.window_w);
-        config_set_d(CONFIG_HEIGHT,     video.window_h);
+        config_set_d(CONFIG_WIDTH,      video.window_h);
+        config_set_d(CONFIG_HEIGHT,     video.window_w);
 
         SDL_GL_SetSwapInterval(vsync);
 
         if (!glext_init())
             return 0;
 
-        glViewport(0, 0, video.device_w, video.device_h);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glViewport(0, 0, video.device_h, video.device_w);
+        glClearColor(0, 0, 0, 1);
 
         glEnable(GL_NORMALIZE);
         glEnable(GL_CULL_FACE);
@@ -352,6 +363,10 @@ void video_swap(void)
 {
     int dt;
 
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
     if (hmd_stat())
         hmd_swap();
 
@@ -402,7 +417,7 @@ static int grabbed = 0;
 
 void video_set_grab(int w)
 {
-#ifdef NDEBUG
+/*#ifdef NDEBUG
     if (w)
     {
         SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
@@ -417,23 +432,23 @@ void video_set_grab(int w)
     SDL_SetRelativeMouseMode(SDL_TRUE);
     SDL_SetWindowGrab(window, SDL_TRUE);
     video_hide_cursor();
-#endif
+#endif*/
 
     grabbed = 1;
 }
 
 void video_clr_grab(void)
 {
-#ifdef NDEBUG
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+/*#ifdef NDEBUG
+    SDL_SetRelativeMouseMode(SDL_FALSE);*/
 
     /* Never release the grab in HMD mode. */
 
-    if (!hmd_stat())
+    /*if (!hmd_stat())
         SDL_SetWindowGrab(window, SDL_FALSE);
 
     video_show_cursor();
-#endif
+#endif*/
     grabbed = 0;
 }
 
@@ -481,6 +496,7 @@ void video_push_persp(float fov, float n, float f)
         glMatrixMode(GL_PROJECTION);
         {
             glLoadIdentity();
+            glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
 
             m[0][0] = c / a;
             m[0][1] =  0.0f;
@@ -520,6 +536,7 @@ void video_push_ortho(void)
         glMatrixMode(GL_PROJECTION);
         {
             glLoadIdentity();
+            glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
             glOrtho_(0.0, w, 0.0, h, -1.0, +1.0);
         }
         glMatrixMode(GL_MODELVIEW);
