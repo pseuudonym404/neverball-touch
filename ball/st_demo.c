@@ -36,7 +36,8 @@
 
 /*---------------------------------------------------------------------------*/
 
-#define DEMO_LINE 4
+#define DEMO_LINEP 2
+#define DEMO_LINEL 4
 #define DEMO_STEP 8
 
 static Array items;
@@ -102,13 +103,18 @@ static int gui_demo_thumbs(int id)
     int jd, kd, ld;
     int i, j;
 
+    int row = w < h ? DEMO_LINEP : DEMO_LINEL;
+
+    int iw = (w - 160) / row;
+    int ih = iw * 3 / 4;
+
     struct thumb *thumb;
 
     if ((jd = gui_varray(id)))
-        for (i = first; i < first + DEMO_STEP; i += DEMO_LINE)
+        for (i = first; i < first + DEMO_STEP; i += row)
             if ((kd = gui_harray(jd)))
             {
-                for (j = i + DEMO_LINE - 1; j >= i; j--)
+                for (j = i + row - 1; j >= i; j--)
                 {
                     thumb = &thumbs[j % DEMO_STEP];
 
@@ -120,9 +126,8 @@ static int gui_demo_thumbs(int id)
                         {
                             gui_space(ld);
 
-                            thumb->shot = gui_image(ld, " ", w / 5, h / 4);
-                            thumb->name = gui_label(ld, " ", GUI_SML,
-                                                    gui_wht, gui_wht);
+                            thumb->shot = gui_image(ld, " ", iw, ih);
+                            thumb->name = gui_label(ld, " ", GUI_SML, gui_wht, gui_wht);
 
                             gui_set_trunc(thumb->name, TRUNC_TAIL);
                             gui_set_state(ld, DEMO_SELECT, j);
@@ -286,9 +291,14 @@ static int demo_gui(void)
 
     if (total)
     {
-        if ((jd = gui_hstack(id)))
-        {
-
+        if (video.device_w < video.device_h && total > DEMO_STEP) {
+            if ((jd = gui_vstack(id))) {
+                gui_navig(jd, total, first, DEMO_STEP);
+                gui_space(jd);
+                gui_filler(jd);
+                gui_label(jd, _("Select Replay"), GUI_MED, 0,0);
+            }
+        } else if ((jd = gui_hstack(id))) {
             gui_label(jd, _("Select Replay"), GUI_MED, 0,0);
             gui_space(jd);
             gui_filler(jd);
@@ -308,7 +318,7 @@ static int demo_gui(void)
     {
         gui_label(id, _("No Replays"), GUI_MED, 0, 0);
         gui_space(id);
-        gui_state(id, _("Back"), GUI_SML, GUI_BACK, 0);
+        gui_state(id, _("Back"), GUI_MED, GUI_BACK, 0);
 
         gui_layout(id, 0, 0);
     }
@@ -639,13 +649,13 @@ static int demo_end_gui(void)
     if ((id = gui_vstack(0)))
     {
         if (demo_paused)
-            kd = gui_label(id, _("Replay Paused"), GUI_LRG, gui_gry, gui_red);
+            kd = gui_label(id, _("Replay"), GUI_LRG, gui_gry, gui_red);
         else
-            kd = gui_label(id, _("Replay Ends"),   GUI_LRG, gui_gry, gui_red);
+            kd = gui_label(id, _("Replay Ends"), GUI_LRG, gui_gry, gui_red);
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)))
+        if ((jd = video.device_w < video.device_h ? gui_vstack(id) : gui_harray(id)))
         {
             if (standalone)
             {
@@ -735,12 +745,14 @@ static int demo_del_gui(void)
 
     if ((id = gui_vstack(0)))
     {
-        kd = gui_label(id, _("Delete Replay?"), GUI_MED, gui_red, gui_red);
+        kd = gui_label(id, _("Delete?"), GUI_LRG, gui_gry, gui_red);
 
-        if ((jd = gui_harray(id)))
+        gui_space(id);
+
+        if ((jd = video.device_w < video.device_h ? gui_vstack(id) : gui_harray(id)))
         {
-            gui_start(jd, _("Keep"),   GUI_SML, DEMO_KEEP, 0);
-            gui_state(jd, _("Delete"), GUI_SML, DEMO_DEL,  0);
+            gui_start(jd, _("Keep"),   GUI_MED, DEMO_KEEP, 0);
+            gui_state(jd, _("Delete"), GUI_MED, DEMO_DEL,  0);
         }
 
         gui_pulse(kd, 1.2f);

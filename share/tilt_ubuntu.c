@@ -22,7 +22,7 @@ static int status = 0;
 
 void tilt_cb(UASAccelerometerEvent *event, void *context) {
     float value = 0;
-    if (uas_accelerometer_event_get_acceleration_x(event, &value) == U_STATUS_SUCCESS) accelx = (value * -1) + 7;
+    if (uas_accelerometer_event_get_acceleration_x(event, &value) == U_STATUS_SUCCESS) accelx = value;
     if (uas_accelerometer_event_get_acceleration_y(event, &value) == U_STATUS_SUCCESS) accely = value;
 }
 
@@ -48,9 +48,9 @@ int tilt_get_button(int *b, int *s) {
 }
 
 float tilt_get_x(void) {
-    return accelx * 4.0f;
+    return accelx;
 }
 
 float tilt_get_z(void) {
-    return accely * 4.0f;
+    return accely;
 }

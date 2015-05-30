@@ -27,6 +27,7 @@
 
 /* Integer options. */
 
+int CONFIG_ORIENTATION;
 int CONFIG_FULLSCREEN;
 int CONFIG_DISPLAY;
 int CONFIG_WIDTH;
@@ -130,6 +131,7 @@ static struct
     int         cur;
 } option_d[] = {
     { &CONFIG_FULLSCREEN,   "fullscreen",   0 },
+    { &CONFIG_ORIENTATION,  "orientation",  -1 },
     { &CONFIG_DISPLAY,      "display",      0 },
     { &CONFIG_WIDTH,        "width",        800 },
     { &CONFIG_HEIGHT,       "height",       600 },

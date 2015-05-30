@@ -165,9 +165,15 @@ void gui_score_board(int pd, unsigned int types, int e, int h)
     while (!(types & score_type))
         score_type = GUI_SCORE_NEXT(score_type);
 
-    if ((id = gui_hstack(pd)))
+    if ((id = video.device_w < video.device_h ? gui_vstack(pd) : gui_hstack(pd)))
     {
         gui_filler(id);
+
+        if (video.device_w < video.device_h) {
+            gui_scores(id, e);
+            gui_space(id);
+            gui_filler(id);
+        }
 
         if ((jd = gui_vstack(id)))
         {
@@ -199,12 +205,7 @@ void gui_score_board(int pd, unsigned int types, int e, int h)
 
             if (h)
             {
-                //if ((kd = gui_hstack(jd)))
-                //{
-                    //gui_filler(kd);
-                    gui_state(jd, _("Change Name"), GUI_MED, GUI_NAME, 0);
-                    //gui_filler(kd);
-                //}
+                gui_state(jd, _("Change Name"), GUI_MED, GUI_NAME, 0);
             }
             if ((types & GUI_SCORE_SAVE))
             {
@@ -214,10 +215,11 @@ void gui_score_board(int pd, unsigned int types, int e, int h)
             gui_filler(jd);
         }
 
-        gui_space(id);
-        gui_filler(id);
-
-        gui_scores(id, e);
+        if (video.device_w >= video.device_h) {
+            gui_space(id);
+            gui_filler(id);
+            gui_scores(id, e);
+        }
 
         gui_filler(id);
     }

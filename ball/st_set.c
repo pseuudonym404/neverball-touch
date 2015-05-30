@@ -30,6 +30,8 @@
 /*---------------------------------------------------------------------------*/
 
 #define SET_STEP 8
+#define SET_ROWL 4
+#define SET_ROWP 2
 
 static int total = 0;
 static int first = 0;
@@ -95,11 +97,16 @@ static int set_action(int tok, int val)
 static int set_gui(void)
 {
     int w = video.device_w;
-    int h = video.device_h;
+    //int h = video.device_h;
 
     int id, jd, kd, ld;
 
-    int i;
+    int i, j;
+
+    int row = video.device_w < video.device_h ? SET_ROWP : SET_ROWL;
+
+    int iw = (w - 160) / row;
+    int ih = iw * 3 / 4;
 
     if ((id = gui_vstack(0)))
     {
@@ -112,46 +119,21 @@ static int set_gui(void)
         }
 
         if ((ld = gui_varray(id))) {
-            if ((jd = gui_hstack(ld))) {
-                gui_filler(jd);
-                for (i = first + (SET_STEP / 2) - 1; i >= first; --i) {
-                    if (set_exists(i) && (kd = gui_vstack(jd))) {
-                        gui_space(kd);
-                        gui_image(kd, set_shot(i), w / 5, h / 4);
-                        gui_label(kd, set_name(i), GUI_SML, gui_wht, gui_wht);
-                        gui_set_state(kd, SET_SELECT, i);
+            for (i = first; i < first + SET_STEP; i += row) {
+                if ((jd = gui_hstack(ld))) {
+                    gui_filler(jd);
+                    for (j = i + row - 1; j >= i; --j) {
+                        if (set_exists(j) && (kd = gui_vstack(jd))) {
+                            gui_space(kd);
+                            gui_image(kd, set_shot(j), iw, ih);
+                            gui_label(kd, set_name(j), GUI_SML, gui_wht, gui_wht);
+                            gui_set_state(kd, SET_SELECT, j);
+                        }
                     }
+                    gui_filler(jd);
                 }
-                gui_filler(jd);
-            }
-
-            if ((jd = gui_hstack(ld))) {
-                gui_filler(jd);
-                for (i = first + SET_STEP - 1; i >= first + (SET_STEP / 2); --i) {
-                    if (set_exists(i) && (kd = gui_vstack(jd))) {
-                        gui_space(kd);
-                        gui_image(kd, set_shot(i), w / 5, h / 4);
-                        gui_label(kd, set_name(i), GUI_SML, gui_wht, gui_wht);
-                        gui_set_state(kd, SET_SELECT, i);
-                    }
-                }
-                gui_filler(jd);
             }
         }
-
-        /*if ((jd = gui_harray(id)))
-        {
-            shot_id = gui_image(jd, set_shot(first), 7 * w / 16, 7 * h / 16);
-
-            if ((jd = gui_varray(id)))
-            {
-                for (i = first; i < first + SET_STEP; i++)
-                    gui_set(jd, i);
-            }
-        }
-
-        gui_space(id);
-        desc_id = gui_multi(id, " \\ \\ \\ \\ \\", GUI_SML, gui_yel, gui_wht);*/
 
         gui_layout(id, 0, 0);
     }

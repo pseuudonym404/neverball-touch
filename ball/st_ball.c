@@ -175,10 +175,11 @@ static int ball_gui(void)
 
     if ((id = gui_vstack(0)))
     {
-        if ((jd = gui_harray(id)))
+        if ((jd = gui_hstack(id)))
         {
             gui_label(jd, _("Ball Model"), GUI_MED, 0, 0);
             gui_space(jd);
+            gui_filler(jd);
             gui_start(jd, _("Back"), GUI_MED, GUI_BACK, 0);
         }
 
@@ -188,7 +189,7 @@ static int ball_gui(void)
         {
             gui_state(jd, " > ", GUI_MED, GUI_NEXT, 0);
 
-            name_id = gui_label(jd, "very-long-ball-name", GUI_MED,
+            name_id = gui_label(jd, "magic-eightball", GUI_MED,
                                 gui_wht, gui_wht);
 
             gui_set_trunc(name_id, TRUNC_TAIL);
@@ -197,7 +198,7 @@ static int ball_gui(void)
             gui_state(jd, " < ", GUI_MED, GUI_PREV, 0);
         }
 
-        for (i = 0; i < 12; i++)
+        for (i = 0; i < 14; i++)
             gui_space(id);
 
         gui_layout(id, 0, 0);

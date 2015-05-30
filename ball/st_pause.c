@@ -86,8 +86,16 @@ static int pause_gui(void)
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)))
-        {
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_vstack(id))) {
+                gui_start(jd, _("Continue"), GUI_MED, PAUSE_CONTINUE, 0);
+
+                if (progress_same_avail())
+                    gui_state(jd, _("Restart"), GUI_MED, PAUSE_RESTART, 0);
+
+                gui_state(jd, _("Quit"), GUI_MED, PAUSE_EXIT, 0);
+            }
+        } else if ((jd = gui_harray(id))) {
             gui_state(jd, _("Quit"), GUI_MED, PAUSE_EXIT, 0);
 
             if (progress_same_avail())

@@ -92,19 +92,24 @@ static int fail_gui(void)
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)))
-        {
-            //if (progress_dead())
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_varray(id))) {
+                if (progress_same_avail())
+                    gui_start(jd, _("Retry"), GUI_MED, FAIL_SAME, 0);
+
+                if (progress_next_avail())
+                    gui_start(jd, _("Next"),  GUI_MED, FAIL_NEXT, 0);
+
                 gui_start(jd, _("Quit"), GUI_MED, FAIL_OVER, 0);
+            }
+        } else if ((jd = gui_harray(id))) {
+            gui_start(jd, _("Quit"), GUI_MED, FAIL_OVER, 0);
 
             if (progress_next_avail())
                 gui_start(jd, _("Next"),  GUI_MED, FAIL_NEXT, 0);
 
             if (progress_same_avail())
                 gui_start(jd, _("Retry"), GUI_MED, FAIL_SAME, 0);
-
-            //if (demo_saved())
-            //    gui_state(jd, _("Save Replay"), GUI_MED, FAIL_SAVE, 0);
         }
 
         gui_space(id);

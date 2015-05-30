@@ -124,10 +124,30 @@ static int loop(void)
         case SDL_FINGERUP:
             /* Convert to OpenGL coordinates. */
 
-            ax = e.tfinger.y * video.window_w;
-            ay = e.tfinger.x * video.window_h;
-            dx = e.tfinger.dy * video.window_w;
-            dy = e.tfinger.dx * video.window_h;
+            if (video.device_orientation & VIDEO_ORIENTATION_ROTATE) {
+                ax = e.tfinger.y * video.window_w;
+                ay = e.tfinger.x * video.window_h;
+                dx = e.tfinger.dy * video.window_w;
+                dy = e.tfinger.dx * video.window_h;
+                if (video.device_orientation & VIDEO_ORIENTATION_MIRROR) {
+                    ax = video.window_w - ax;
+                    ay = video.window_h - ay;
+                    dx *= -1;
+                    dy *= -1;
+                }
+            } else {
+                ax = e.tfinger.x * video.window_w;
+                ay = e.tfinger.y * video.window_h;
+                dx = e.tfinger.dx * video.window_w;
+                dy = e.tfinger.dy * video.window_h;
+                if (video.device_orientation & VIDEO_ORIENTATION_MIRROR) {
+                    ax = video.window_w - ax;
+                    dx *= -1;
+                } else {
+                    ay = video.window_h - ay;
+                    dy *= -1;
+                }
+            }
 
             /* Convert to pixels. */
 

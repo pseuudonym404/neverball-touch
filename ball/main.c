@@ -213,10 +213,30 @@ static int loop(void)
         case SDL_FINGERUP:
             /* Convert to OpenGL coordinates. */
 
-            ax = e.tfinger.y * video.window_w;
-            ay = e.tfinger.x * video.window_h;
-            dx = e.tfinger.dy * video.window_w;
-            dy = e.tfinger.dx * video.window_h;
+            if (video.device_orientation & VIDEO_ORIENTATION_ROTATE) {
+                ax = e.tfinger.y * video.window_w;
+                ay = e.tfinger.x * video.window_h;
+                dx = e.tfinger.dy * video.window_w;
+                dy = e.tfinger.dx * video.window_h;
+                if (video.device_orientation & VIDEO_ORIENTATION_MIRROR) {
+                    ax = video.window_w - ax;
+                    ay = video.window_h - ay;
+                    dx *= -1;
+                    dy *= -1;
+                }
+            } else {
+                ax = e.tfinger.x * video.window_w;
+                ay = e.tfinger.y * video.window_h;
+                dx = e.tfinger.dx * video.window_w;
+                dy = e.tfinger.dy * video.window_h;
+                if (video.device_orientation & VIDEO_ORIENTATION_MIRROR) {
+                    ax = video.window_w - ax;
+                    dx *= -1;
+                } else {
+                    ay = video.window_h - ay;
+                    dy *= -1;
+                }
+            }
 
             /* Convert to pixels. */
 
@@ -300,9 +320,30 @@ static int loop(void)
     {
         int b;
         int s;
-        float sense = (650.0f - config_get_d(CONFIG_MOUSE_SENSE)) / 250.0f;
+        float x;
+        float y;
+        float sense = (650.0f - config_get_d(CONFIG_MOUSE_SENSE)) / 75.0f;
 
-        st_angle(tilt_get_x() * sense, tilt_get_z() * sense);
+        switch (video.device_orientation) {
+            default:
+                x = tilt_get_z() * -1;
+                y = tilt_get_x() * -1;
+                break;
+            case 1:
+                x = tilt_get_x() * -1;
+                y = tilt_get_z();
+                break;
+            case 2:
+                x = tilt_get_z();
+                y = tilt_get_x();
+                break;
+            case 3:
+                x = tilt_get_x();
+                y = tilt_get_z() * -1;
+                break;
+        }
+
+        st_angle((x + 7.0f) * sense, y * sense);
 
         while (tilt_get_button(&b, &s))
         {

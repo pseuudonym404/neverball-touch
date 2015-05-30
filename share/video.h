@@ -17,12 +17,16 @@
 
 /*---------------------------------------------------------------------------*/
 
+#define VIDEO_ORIENTATION_ROTATE 1
+#define VIDEO_ORIENTATION_MIRROR 2
+
 struct video
 {
     int device_w, device_h;
     int window_w, window_h;
 
     float device_scale;
+    int device_orientation;
 };
 
 extern struct video video;
@@ -56,6 +60,8 @@ void video_push_persp(float, float, float);
 void video_push_ortho(void);
 void video_pop_matrix(void);
 void video_clear(void);
+
+void video_set_orientation(int);
 
 /*---------------------------------------------------------------------------*/
 

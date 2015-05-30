@@ -28,7 +28,10 @@
 #include "st_title.h"
 #include "st_shared.h"
 
-#define START_STEP 10
+#define START_ROWP 3
+#define START_STEPP 9
+#define START_ROWL 5
+#define START_STEPL 10
 
 /*---------------------------------------------------------------------------*/
 
@@ -129,11 +132,11 @@ static int start_action(int tok, int val)
         return goto_state(&st_set);
 
     case GUI_PREV:
-        first -= START_STEP;
+        first -= video.device_w < video.device_h ? START_STEPP : START_STEPL;
         return goto_state(&st_start);
 
     case GUI_NEXT:
-        first += START_STEP;
+        first += video.device_w < video.device_h ? START_STEPP : START_STEPL;
         return goto_state(&st_start);
 
     case START_CHALLENGE:
@@ -174,38 +177,53 @@ static int start_gui(void)
 {
     int w = video.device_w;
     int h = video.device_h;
-    int i;
+    int i, j;
 
     int id, jd, kd;
 
-    if ((id = gui_vstack(0))) {
-        if ((jd = gui_hstack(id))) {
+    int iw, ih, row, step;
 
+    if (w < h) {
+        step = START_STEPP;
+        row = START_ROWP;
+    } else {
+        step = START_STEPL;
+        row = START_ROWL;
+    }
+
+    iw = (w - 120) / row;
+    ih = iw * 3 / 4;
+
+    if ((id = gui_vstack(0))) {
+        if (w < h) {
+            if ((jd = gui_vstack(id))) {
+                gui_navig(jd, 25, first, step);
+                gui_space(jd);
+                gui_filler(jd);
+                gui_label(jd, set_name(curr_set()), GUI_MED, gui_yel, gui_red);
+            }
+        } else if ((jd = gui_hstack(id))) {
             gui_label(jd, set_name(curr_set()), GUI_MED, gui_yel, gui_red);
             gui_space(jd);
             gui_filler(jd);
-            gui_navig(jd, 25, first, START_STEP);
+            gui_navig(jd, 25, first, step);
         }
 
         if ((jd = gui_varray(id))) {
-            if ((kd = gui_hstack(jd))) {
-                gui_filler(kd);
-                for (i = first + (START_STEP / 2) - 1; i >= first; --i)
-                    gui_level(kd, i, w / 6, h / 5);
-                gui_filler(kd);
-            }
-
-            if ((kd = gui_hstack(jd))) {
-                gui_filler(kd);
-                for (i = first + START_STEP  - 1; i >= first + (START_STEP / 2); --i)
-                    gui_level(kd, i, w / 6, h / 5);
-                gui_filler(kd);
+            for (i = first; i < first + step; i += row) {
+                if ((kd = gui_hstack(jd))) {
+                    gui_filler(kd);
+                    for (j = i + row - 1; j >= i; --j)
+                        gui_level(kd, j, iw, ih);
+                    gui_filler(kd);
+                }
             }
         }
 
         gui_space(id);
 
-        if ((jd = gui_hstack(id))) {
+        if ((jd = w < h ? gui_vstack(id) : gui_hstack(id))) {
+            if (w < h) gui_label(jd, _("Goal"), GUI_MED, 0, 0);
             if ((kd = gui_harray(jd)))
             {
                 int btn0, btn1;
@@ -218,7 +236,7 @@ static int start_gui(void)
                 else
                     gui_set_hilite(btn0, 1);
             }
-            gui_label(jd, _("Goal"), GUI_MED, 0, 0);
+            if (w >= h) gui_label(jd, _("Goal"), GUI_MED, 0, 0);
 
             gui_space(jd);
             gui_filler(jd);
@@ -229,71 +247,6 @@ static int start_gui(void)
 
         gui_layout(id, 0, 0);
     }
-
-        /*if ((jd = gui_harray(id)))
-        {
-            if (config_cheat())
-            {
-                if ((kd = gui_vstack(jd)))
-                {
-                    shot_id = gui_image(kd, set_shot(curr_set()),
-                                        6 * w / 16, 6 * h / 16);
-                    file_id = gui_label(kd, " ", GUI_SML, gui_yel, gui_red);
-                }
-            }
-            else
-            {
-                shot_id = gui_image(jd, set_shot(curr_set()),
-                                    7 * w / 16, 7 * h / 16);
-            }*/
-
-            /*if ((jd = gui_varray(id)))
-            {
-                for (i = 0; i < 5; i++)
-                    if ((kd = gui_harray(jd)))
-                        for (j = 4; j >= 0; j--)
-                            gui_level(kd, i * 5 + j);
-
-                challenge_id = gui_state(jd, _("Challenge"), GUI_MED,
-                                         START_CHALLENGE, 0);
-
-                gui_set_hilite(challenge_id, curr_mode() == MODE_CHALLENGE);
-            }*/
-        /*}
-        gui_space(id);
-        gui_score_board(id, (GUI_SCORE_COIN |
-                             GUI_SCORE_TIME |
-                             GUI_SCORE_GOAL), 0, 0);
-        gui_space(id);
-
-        if ((jd = gui_hstack(id)))
-        {
-            gui_filler(jd);
-
-            if ((kd = gui_harray(jd)))
-            {
-                int btn0, btn1;
-
-                btn0 = gui_state(kd, _("Unlocked"), GUI_SML, START_LOCK_GOALS, 0);
-                btn1 = gui_state(kd, _("Locked"),   GUI_SML, START_LOCK_GOALS, 1);
-
-                if (config_get_d(CONFIG_LOCK_GOALS))
-                    gui_set_hilite(btn1, 1);
-                else
-                    gui_set_hilite(btn0, 1);
-            }
-
-            gui_space(jd);
-
-            gui_label(jd, _("Goal State in Completed Levels"), GUI_SML, 0, 0);
-
-            gui_filler(jd);
-        }*/
-
-        /*if (file_id)
-            gui_set_trunc(file_id, TRUNC_HEAD);
-
-        set_score_board(NULL, -1, NULL, -1, NULL, -1);*/
 
     return id;
 }

@@ -463,8 +463,8 @@ static void gui_font_init(void)
         int s = gui_size();
 
         font_sizes[0] = s / 26;
-        font_sizes[1] = s / 13;
-        font_sizes[2] = s /  7;
+        font_sizes[1] = s / 15;
+        font_sizes[2] = s /  8;
 
         /* Load the default font at index 0. */
 
@@ -2207,6 +2207,7 @@ int gui_navig(int id, int total, int first, int step)
         }
 
         gui_space(jd);
+        gui_filler(jd);
 
         gui_start(jd, _("Back"), GUI_MED, GUI_BACK, 0);
     }

@@ -32,13 +32,14 @@ enum
 {
     CONF_VIDEO = 1,
     CONF_LANG,
-    CONF_BACK
+    CONF_BACK,
+    CONF_ORIENTATION
 };
 
 static int music_id[11];
 static int sound_id[11];
 
-static int conf_action(int i)
+static int conf_action(int i, int val)
 {
     int s = config_get_d(CONFIG_SOUND_VOLUME);
     int m = config_get_d(CONFIG_MUSIC_VOLUME);
@@ -58,6 +59,14 @@ static int conf_action(int i)
 
     case CONF_LANG:
         goto_state(&st_lang);
+        break;
+
+    case CONF_ORIENTATION:
+        config_set_d(CONFIG_ORIENTATION, val);
+        video_set_orientation(val);
+        hud_free();
+        hud_init();
+        goto_state(&st_conf);
         break;
 
     default:
@@ -90,6 +99,13 @@ static int conf_action(int i)
 
 static int conf_enter(struct state *st, struct state *prev)
 {
+    static const struct conf_option orient_opts[] = {
+        { N_("W"), VIDEO_ORIENTATION_ROTATE },
+        { N_("S"), VIDEO_ORIENTATION_MIRROR },
+        { N_("E"), VIDEO_ORIENTATION_ROTATE | VIDEO_ORIENTATION_MIRROR },
+        { N_("N"), 0 },
+    };
+
     int id, jd, kd;
     int i;
 
@@ -99,10 +115,11 @@ static int conf_enter(struct state *st, struct state *prev)
 
     if ((id = gui_vstack(0)))
     {
-        if ((jd = gui_harray(id)))
+        if ((jd = gui_hstack(id)))
         {
             gui_label(jd, _("Options"), GUI_MED, 0, 0);
             gui_space(jd);
+            gui_filler(jd);
             gui_start(jd, _("Back"),    GUI_MED, CONF_BACK, 0);
         }
 
@@ -118,9 +135,24 @@ static int conf_enter(struct state *st, struct state *prev)
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)) &&
-            (kd = gui_harray(jd)))
-        {
+        conf_select(id, _("Orientation"), CONF_ORIENTATION,
+                    video.device_orientation,
+                    orient_opts, ARRAYSIZE(orient_opts));
+
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_varray(id))) {
+                /* A series of empty buttons forms the sound volume control. */
+
+                int s = config_get_d(CONFIG_SOUND_VOLUME);
+
+                gui_label(jd, _("Sound Volume"), GUI_MED, 0, 0);
+
+                if ((kd = gui_harray(jd))) for (i = 10; i >= 0; i--) {
+                    sound_id[i] = gui_state(kd, NULL, GUI_MED, 100 + i, 0);
+                    gui_set_hilite(sound_id[i], (s == i));
+                }
+            }
+        } else if ((jd = gui_harray(id)) && (kd = gui_harray(jd))) {
             /* A series of empty buttons forms the sound volume control. */
 
             int s = config_get_d(CONFIG_SOUND_VOLUME);
@@ -134,9 +166,20 @@ static int conf_enter(struct state *st, struct state *prev)
             gui_label(jd, _("Sound Volume"), GUI_MED, 0, 0);
         }
 
-        if ((jd = gui_harray(id)) &&
-            (kd = gui_harray(jd)))
-        {
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_varray(id))) {
+                /* A series of empty buttons forms the music volume control. */
+
+                int m = config_get_d(CONFIG_MUSIC_VOLUME);
+
+                gui_label(jd, _("Music Volume"), GUI_MED, 0, 0);
+
+                if ((kd = gui_harray(jd))) for (i = 10; i >= 0; i--) {
+                    music_id[i] = gui_state(kd, NULL, GUI_MED, 200 + i, 0);
+                    gui_set_hilite(music_id[i], (m == i));
+                }
+            }
+        } else if ((jd = gui_harray(id)) && (kd = gui_harray(jd))) {
             /* A series of empty buttons forms the music volume control. */
 
             int m = config_get_d(CONFIG_MUSIC_VOLUME);
@@ -152,11 +195,13 @@ static int conf_enter(struct state *st, struct state *prev)
 
         gui_space(id);
 
-        if ((jd = gui_harray(id)) &&
-            (kd = gui_harray(jd)))
-        {
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_varray(id))) {
+                gui_label(jd, _("Language"),  GUI_MED, 0, 0);
+                if ((kd = gui_harray(jd))) gui_state(kd, _("Select"), GUI_MED, CONF_LANG, 0);
+            }
+        } else if ((jd = gui_harray(id)) && (kd = gui_harray(jd))) {
             gui_state(kd, _("Select"), GUI_MED, CONF_LANG, 0);
-
             gui_label(jd, _("Language"),  GUI_MED, 0, 0);
         }
 
@@ -202,7 +247,7 @@ static void conf_stick(int id, int a, float v, int bump)
 static int conf_click(int b, int d)
 {
     if (gui_click(b, d))
-        return conf_action(gui_token(gui_active()));
+        return conf_action(gui_token(gui_active()), gui_value(gui_active()));
 
     return 1;
 }
@@ -217,7 +262,7 @@ static int conf_buttn(int b, int d)
     if (d)
     {
         if (config_tst_d(CONFIG_JOYSTICK_BUTTON_A, b))
-            return conf_action(gui_token(gui_active()));
+            return conf_action(gui_token(gui_active()), gui_value(gui_active()));
         if (config_tst_d(CONFIG_JOYSTICK_BUTTON_B, b))
             return goto_state(&st_title);
     }

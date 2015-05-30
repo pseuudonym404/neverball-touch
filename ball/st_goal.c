@@ -133,13 +133,13 @@ static int goal_gui(void)
                         balls--;
             }
 
-            if ((jd = gui_hstack(id)))
+            /*if ((jd = gui_hstack(id)))
             {
-                gui_filler(jd);
+                gui_filler(jd);*/
 
-                if ((kd = gui_vstack(jd)))
+                if ((kd = gui_vstack(id)))
                 {
-                    if ((ld = gui_hstack(kd)))
+                    if ((ld = video.device_w < video.device_h ? gui_vstack(kd) : gui_hstack(kd)))
                     {
                         if ((md = gui_harray(ld)))
                         {
@@ -186,8 +186,8 @@ static int goal_gui(void)
                     gui_set_rect(kd, GUI_ALL);
                 }
 
-                gui_filler(jd);
-            }
+                /*gui_filler(jd);
+            }*/
 
             gui_space(id);
         }

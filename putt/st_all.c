@@ -356,6 +356,15 @@ static int course_enter(struct state *st, struct state *prev)
     r = comp_rows(n);
     c = comp_cols(n);
 
+    int iw, ih;
+    if (w < h) {
+        iw = (w - 120) / c;
+        ih = iw * 3 / 4;
+    } else {
+        ih = (h - 200) / r;
+        iw = ih * 4 / 3;
+    }
+
     if ((id = gui_vstack(0)))
     {
         if ((jd = gui_hstack(id))) {
@@ -384,8 +393,7 @@ static int course_enter(struct state *st, struct state *prev)
 
                             if (k < n)
                             {
-                                ld = gui_image(kd, course_shot(k),
-                                               w / (c + 1), h / (r + 1));
+                                ld = gui_image(kd, course_shot(k), iw, ih);
                                 gui_set_state(ld, k, 0);
 
                                 if (k == 0)

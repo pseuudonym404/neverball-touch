@@ -38,18 +38,34 @@ void conf_slider(int id, const char *text,
 {
     int jd, kd, i;
 
-    if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
-    {
-        /* A series of empty buttons forms a "slider". */
+    if (video.device_w < video.device_h) {
+        if ((jd = gui_varray(id))) {
+            gui_label(jd, text, GUI_MED, 0, 0);
 
-        for (i = num - 1; i >= 0; i--)
-        {
-            ids[i] = gui_state(kd, NULL, GUI_MED, token, i);
+            /* A series of empty buttons forms a "slider". */
 
-            gui_set_hilite(ids[i], (i == value));
+            if ((kd = gui_harray(jd))) {
+                for (i = num - 1; i >= 0; i--) {
+                    ids[i] = gui_state(kd, NULL, GUI_MED, token, i);
+
+                    gui_set_hilite(ids[i], (i == value));
+                }
+            }
         }
+    } else {
+        if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
+        {
+            /* A series of empty buttons forms a "slider". */
 
-        gui_label(jd, text, GUI_MED, 0, 0);
+            for (i = num - 1; i >= 0; i--)
+            {
+                ids[i] = gui_state(kd, NULL, GUI_MED, token, i);
+
+                gui_set_hilite(ids[i], (i == value));
+            }
+
+            gui_label(jd, text, GUI_MED, 0, 0);
+        }
     }
 }
 
@@ -57,10 +73,18 @@ int conf_state(int id, const char *label, const char *text, int token)
 {
     int jd, kd, rd = 0;
 
-    if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
-    {
-        rd = gui_state(kd, text, GUI_MED, token, 0);
-        gui_label(jd, label, GUI_MED, 0, 0);
+    if (video.device_w < video.device_h) {
+        if ((jd = gui_varray(id))) {
+            gui_label(jd, label, GUI_MED, 0, 0);
+            if ((kd = gui_harray(jd)))
+                rd = gui_state(kd, text, GUI_MED, token, 0);
+        }
+    } else {
+        if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
+        {
+            rd = gui_state(kd, text, GUI_MED, token, 0);
+            gui_label(jd, label, GUI_MED, 0, 0);
+        }
     }
 
     return rd;
@@ -90,10 +114,11 @@ void conf_header(int id, const char *text, int token)
 {
     int jd;
 
-    if ((jd = gui_harray(id)))
+    if ((jd = gui_hstack(id)))
     {
         gui_label(jd, text, GUI_MED, 0, 0);
         gui_space(jd);
+        gui_filler(jd);
         gui_start(jd, _("Back"), GUI_MED, token, 0);
     }
 
@@ -106,17 +131,32 @@ void conf_select(int id, const char *text, int token, int value,
     int jd, kd, ld;
     int i;
 
-    if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
-    {
-        for (i = 0; i < num; i++)
-        {
-            ld = gui_state(kd, _(opts[i].text), GUI_MED,
-                           token, opts[i].value);
+    if (video.device_w < video.device_h) {
+        if ((jd = gui_varray(id))) {
+            gui_label(jd, text, GUI_MED, 0, 0);
 
-            gui_set_hilite(ld, (opts[i].value == value));
+            if ((kd = gui_harray(jd))) {
+                for (i = 0; i < num; i++) {
+                    ld = gui_state(kd, _(opts[i].text), GUI_MED,
+                                token, opts[i].value);
+
+                    gui_set_hilite(ld, (opts[i].value == value));
+                }
+            }
         }
+    } else {
+        if ((jd = gui_harray(id)) && (kd = gui_harray(jd)))
+        {
+            for (i = 0; i < num; i++)
+            {
+                ld = gui_state(kd, _(opts[i].text), GUI_MED,
+                            token, opts[i].value);
 
-        gui_label(jd, text, GUI_MED, 0, 0);
+                gui_set_hilite(ld, (opts[i].value == value));
+            }
+
+            gui_label(jd, text, GUI_MED, 0, 0);
+        }
     }
 }
 
@@ -650,11 +690,17 @@ static int lang_gui(void)
 
     if ((id = gui_vstack(0)))
     {
-        if ((jd = gui_hstack(id)))
-        {
+        if (video.device_w < video.device_h) {
+            if ((jd = gui_vstack(id))) {
+                gui_navig(jd, array_len(langs), first, LANG_STEP);
+                gui_space(jd);
+                gui_filler(id);
+                gui_label(jd, _("Language"), GUI_MED, 0, 0);
+            }
+        } else if ((jd = gui_hstack(id))) {
             gui_label(jd, _("Language"), GUI_MED, 0, 0);
             gui_space(jd);
-            gui_space(jd);
+            gui_filler(id);
             gui_navig(jd, array_len(langs), first, LANG_STEP);
         }
 

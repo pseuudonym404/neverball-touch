@@ -131,6 +131,18 @@ int video_init(void)
     return 1;
 }
 
+void video_set_orientation(int orient) {
+    if ((orient & VIDEO_ORIENTATION_ROTATE) != (video.device_orientation & VIDEO_ORIENTATION_ROTATE)) {
+        int tmp = video.window_w;
+        video.window_w = video.window_h;
+        video.window_h = tmp;
+        tmp = video.device_w;
+        video.device_w = video.device_h;
+        video.device_h = tmp;
+    }
+    video.device_orientation = orient;
+}
+
 int video_mode(int f, int w, int h)
 {
     int stereo  = config_get_d(CONFIG_STEREO)      ? 1 : 0;
@@ -140,6 +152,7 @@ int video_mode(int f, int w, int h)
     int vsync   = config_get_d(CONFIG_VSYNC)       ? 1 : 0;
     int hmd     = config_get_d(CONFIG_HMD)         ? 1 : 0;
     int highdpi = config_get_d(CONFIG_HIGHDPI)     ? 1 : 0;
+    int orient  = config_get_d(CONFIG_ORIENTATION);
 
     int dpy = config_get_d(CONFIG_DISPLAY);
 
@@ -233,30 +246,30 @@ int video_mode(int f, int w, int h)
 
             if (SDL_GetDesktopDisplayMode(video_display(), &dm) == 0)
             {
-                video.window_h = dm.w;
-                video.window_w = dm.h;
+                video.window_h = dm.h;
+                video.window_w = dm.w;
             }
         }
         else
         {
-            SDL_GetWindowSize(window, &video.window_h, &video.window_w);
+            SDL_GetWindowSize(window, &video.window_w, &video.window_h);
         }
 
         if (highdpi)
         {
-            SDL_GL_GetDrawableSize(window, &video.device_h, &video.device_w);
+            SDL_GL_GetDrawableSize(window, &video.device_w, &video.device_h);
         }
         else
         {
-            video.device_h = video.window_w;
-            video.device_w = video.window_h;
+            video.device_w = video.window_w;
+            video.device_h = video.window_h;
         }
 
         video.device_scale = (float) video.device_h / (float) video.window_h;
 
         log_printf("Created a window (%u, %dx%d, %s)\n",
                    SDL_GetWindowID(window),
-                   video.window_h, video.window_w,
+                   video.window_w, video.window_h,
                    (f ? "fullscreen" : "windowed"));
 
         config_set_d(CONFIG_DISPLAY,    video_display());
@@ -269,7 +282,11 @@ int video_mode(int f, int w, int h)
         if (!glext_init())
             return 0;
 
-        glViewport(0, 0, video.device_h, video.device_w);
+        glViewport(0, 0, video.device_w, video.device_h);
+
+        if (orient < 0) orient = video.device_w < video.device_h;
+        video_set_orientation(orient);
+
         glClearColor(0, 0, 0, 1);
 
         glEnable(GL_NORMALIZE);
@@ -417,7 +434,7 @@ static int grabbed = 0;
 
 void video_set_grab(int w)
 {
-/*#ifdef NDEBUG
+#ifdef NDEBUG
     if (w)
     {
         SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
@@ -432,23 +449,23 @@ void video_set_grab(int w)
     SDL_SetRelativeMouseMode(SDL_TRUE);
     SDL_SetWindowGrab(window, SDL_TRUE);
     video_hide_cursor();
-#endif*/
+#endif
 
     grabbed = 1;
 }
 
 void video_clr_grab(void)
 {
-/*#ifdef NDEBUG
-    SDL_SetRelativeMouseMode(SDL_FALSE);*/
+#ifdef NDEBUG
+    SDL_SetRelativeMouseMode(SDL_FALSE);
 
     /* Never release the grab in HMD mode. */
 
-    /*if (!hmd_stat())
+    if (!hmd_stat())
         SDL_SetWindowGrab(window, SDL_FALSE);
 
     video_show_cursor();
-#endif*/
+#endif
     grabbed = 0;
 }
 
@@ -496,7 +513,16 @@ void video_push_persp(float fov, float n, float f)
         glMatrixMode(GL_PROJECTION);
         {
             glLoadIdentity();
-            glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
+
+            switch (video.device_orientation) {
+                default: break;
+                case 1: glRotatef(270.0f, 0.0f, 0.0f, 1.0f); break;
+                case 2: glRotatef(180.0f, 0.0f, 0.0f, 1.0f); break;
+                case 3: glRotatef(90.0f, 0.0f, 0.0f, 1.0f); break;
+            }
+
+            if (video.device_w < video.device_h)
+                glScalef(a, a, 1.0f); 
 
             m[0][0] = c / a;
             m[0][1] =  0.0f;
@@ -536,7 +562,14 @@ void video_push_ortho(void)
         glMatrixMode(GL_PROJECTION);
         {
             glLoadIdentity();
-            glRotatef(-90.0f, 0.0f, 0.0f, 1.0f);
+
+            switch (video.device_orientation) {
+                default: break;
+                case 1: glRotatef(270.0f, 0.0f, 0.0f, 1.0f); break;
+                case 2: glRotatef(180.0f, 0.0f, 0.0f, 1.0f); break;
+                case 3: glRotatef(90.0f, 0.0f, 0.0f, 1.0f); break;
+            }
+
             glOrtho_(0.0, w, 0.0, h, -1.0, +1.0);
         }
         glMatrixMode(GL_MODELVIEW);

@@ -93,16 +93,33 @@ static int help_button(int id, const char *text, int token, int value)
 
 static int help_menu(int id)
 {
-    int jd;
+    int jd, kd;
 
     gui_space(id);
 
-    if ((jd = gui_harray(id)))
-    {
-        help_button(jd, _("Tricks"),   HELP_PAGE, PAGE_TRICKS);
-        help_button(jd, _("Modes"),    HELP_PAGE, PAGE_MODES);
-        //help_button(jd, _("Controls"), HELP_PAGE, PAGE_CONTROLS);
-        help_button(jd, _("Rules"),    HELP_PAGE, PAGE_RULES);
+    if (video.device_w < video.device_h) {
+        if ((jd = gui_vstack(id))) {
+            if ((kd = gui_harray(jd))) {
+                gui_label(kd, _("Help"), GUI_MED, gui_yel, gui_red);
+                gui_space(kd);
+                help_button(kd, _("Back"),     GUI_BACK, 0);
+            }
+            gui_space(jd);
+            if ((kd = gui_harray(jd))) {
+                help_button(kd, _("Tricks"),   HELP_PAGE, PAGE_TRICKS);
+                help_button(kd, _("Modes"),    HELP_PAGE, PAGE_MODES);
+                help_button(kd, _("Rules"),    HELP_PAGE, PAGE_RULES);
+            }
+        }
+    } else if ((jd = gui_hstack(id))) {
+        gui_label(jd, _("Help"), GUI_MED, gui_yel, gui_red);
+        gui_space(jd);
+        if ((kd = gui_harray(jd))) {
+            help_button(kd, _("Tricks"),   HELP_PAGE, PAGE_TRICKS);
+            help_button(kd, _("Modes"),    HELP_PAGE, PAGE_MODES);
+            help_button(kd, _("Rules"),    HELP_PAGE, PAGE_RULES);
+        }
+        gui_space(jd);
         help_button(jd, _("Back"),     GUI_BACK, 0);
     }
     return jd;
@@ -124,50 +141,99 @@ static int page_rules(int id)
     int w = video.device_w;
     int h = video.device_h;
 
-    int jd, kd, ld;
+    int jd, kd, ld, md;
 
-    if ((jd = gui_hstack(id)))
-    {
-        gui_filler(jd);
+    if (w < h) {
+        int iw = (w - 120) / 2;
+        int ih = iw * 3 / 4;
 
-        if ((kd = gui_varray(jd)))
-        {
-            if ((ld = gui_vstack(kd)))
-            {
-                gui_space(ld);
-                gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
-                gui_filler(ld);
+        if ((jd = gui_hstack(id))) {
+            gui_filler(jd);
+
+            if ((kd = gui_vstack(jd))) {
+                if ((md = gui_hstack(kd))) {
+                    gui_filler(md);
+                    if ((ld = gui_vstack(md))) {
+                        gui_space(ld);
+                        gui_image(ld, "gui/help1.jpg", iw, ih);
+                        gui_filler(ld);
+                    }
+                    gui_filler(md);
+                }
+
+                if ((ld = gui_vstack(kd))) {
+                    gui_space(ld);
+                    gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
+
+                if ((md = gui_hstack(kd))) {
+                    gui_filler(md);
+                    if ((ld = gui_vstack(md))) {
+                        gui_space(ld);
+                        gui_image(ld, "gui/help2.jpg", iw, ih);
+                        gui_filler(ld);
+                    }
+                    gui_filler(md);
+                }
+
+                if ((ld = gui_vstack(kd))) {
+                    gui_space(ld);
+                    gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
             }
 
-            if ((ld = gui_vstack(kd)))
-            {
-                gui_space(ld);
-                gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
-                gui_filler(ld);
-            }
+            gui_filler(jd);
         }
+    } else {
+        int ih = (h - 200) / 2;
+        int iw = ih * 4 / 3;
 
-        gui_space(jd);
-
-        if ((kd = gui_varray(jd)))
+        if ((jd = gui_hstack(id)))
         {
-            if ((ld = gui_vstack(kd)))
+            gui_filler(jd);
+
+            if ((kd = gui_varray(jd)))
             {
-                gui_space(ld);
-                gui_image(ld, "gui/help1.jpg", 5 * w / 16, 6 * h / 17);
-                gui_filler(ld);
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
+
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
             }
 
-            if ((ld = gui_vstack(kd)))
+            gui_space(jd);
+
+            if ((kd = gui_varray(jd)))
             {
-                gui_space(ld);
-                gui_image(ld, "gui/help2.jpg", 5 * w / 16, 6 * h / 17);
-                gui_filler(ld);
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_image(ld, "gui/help1.jpg", iw, ih);
+                    gui_filler(ld);
+                }
+
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_image(ld, "gui/help2.jpg", iw, ih);
+                    gui_filler(ld);
+                }
             }
+
+            gui_filler(jd);
         }
-
-        gui_filler(jd);
     }
+
     return id;
 }
 
@@ -245,7 +311,7 @@ static int page_modes(int id)
         gui_label(jd, _("Normal Mode"), GUI_MED, 0, 0);
         gui_multi(jd,
                   _("Finish a level before the time runs out.\\"
-                    "You need to collect coins in order to open the goal."),
+                    "You need to collect coins to open the goal."),
                   GUI_SML, gui_wht, gui_wht);
 
         gui_set_rect(jd, GUI_ALL);
@@ -258,8 +324,8 @@ static int page_modes(int id)
         gui_label(jd, _("Challenge Mode"), GUI_MED, 0, 0);
         gui_multi(jd,
                   _("Start playing from the first level of the set.\\"
-                    "You start with only three balls, do not lose them.\\"
-                    "Earn an extra ball for each 100 coins collected."),
+                    "You start with three balls, do not lose them.\\"
+                    "Earn an extra ball for each 100 coins."),
                   GUI_SML, gui_wht, gui_wht);
 
         gui_set_rect(jd, GUI_ALL);
@@ -284,56 +350,107 @@ static int page_tricks(int id)
     int w = video.device_w;
     int h = video.device_h;
 
-    int jd, kd, ld;
+    int jd, kd, ld, md;
 
-    if ((jd = gui_hstack(id)))
-    {
-        gui_filler(jd);
+    if (w < h) {
+        int iw = (w - 120) / 2;
+        int ih = iw * 3 / 4;
 
-        if ((kd = gui_varray(jd)))
-        {
-            if ((ld = gui_vstack(kd)))
-            {
-                gui_space(ld);
-                gui_image(ld, "gui/help3.jpg", w * 2 / 9, h * 2 / 7);
-                gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
-                gui_filler(ld);
+        if ((jd = gui_hstack(id))) {
+            gui_filler(jd);
 
-                gui_set_state(ld, HELP_DEMO, 0);
+            if ((kd = gui_vstack(jd))) {
+                if ((ld = gui_vstack(kd))) {
+                    gui_space(ld);
+                    gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
+
+                if ((md = gui_hstack(kd))) {
+                    gui_filler(md);
+                    if ((ld = gui_vstack(md))) {
+                        gui_space(ld);
+                        gui_image(ld, "gui/help3.jpg", iw, ih);
+                        gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
+                        gui_filler(ld);
+                        gui_set_state(ld, HELP_DEMO, 0);
+                    }
+                    gui_filler(md);
+                }
+
+                if ((ld = gui_vstack(kd))) {
+                    gui_space(ld);
+                    gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
+
+                if ((md = gui_hstack(kd))) {
+                    gui_filler(md);
+                    if ((ld = gui_vstack(md))) {
+                        gui_space(ld);
+                        gui_image(ld, "gui/help4.jpg", iw, ih);
+                        gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
+                        gui_filler(ld);
+                        gui_set_state(ld, HELP_DEMO, 0);
+                    }
+                    gui_filler(md);
+                }
             }
 
-            if ((ld = gui_vstack(kd)))
-            {
-                gui_space(ld);
-                gui_image(ld, "gui/help4.jpg", w * 2 / 9, h * 2 / 7);
-                gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
-                gui_filler(ld);
-
-                gui_set_state(ld, HELP_DEMO, 1);
-            }
+            gui_filler(jd);
         }
+    } else {
+        int ih = (h - 200) / 2;
+        int iw = ih * 4 / 3;
 
-        gui_space(jd);
-
-        if ((kd = gui_varray(jd)))
+        if ((jd = gui_hstack(id)))
         {
-            if ((ld = gui_vstack(kd)))
+            gui_filler(jd);
+
+            if ((kd = gui_varray(jd)))
             {
-                gui_space(ld);
-                gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
-                gui_filler(ld);
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_image(ld, "gui/help3.jpg", iw, ih);
+                    gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
+                    gui_filler(ld);
+                    gui_set_state(ld, HELP_DEMO, 0);
+                }
+
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_image(ld, "gui/help4.jpg", iw, ih);
+                    gui_state(ld, _("Watch demo"), GUI_SML, 0, 0);
+                    gui_filler(ld);
+                    gui_set_state(ld, HELP_DEMO, 1);
+                }
             }
 
-            if ((ld = gui_vstack(kd)))
+            gui_space(jd);
+
+            if ((kd = gui_varray(jd)))
             {
-                gui_space(ld);
-                gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
-                gui_filler(ld);
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_multi(ld, s0, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
+
+                if ((ld = gui_vstack(kd)))
+                {
+                    gui_space(ld);
+                    gui_multi(ld, s1, GUI_SML, gui_wht, gui_wht);
+                    gui_filler(ld);
+                }
             }
+
+            gui_filler(jd);
         }
-
-        gui_filler(jd);
     }
+
     return id;
 }
 

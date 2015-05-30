@@ -46,7 +46,8 @@ enum
     CONF_SOUND_VOLUME,
     CONF_MUSIC_VOLUME,
     CONF_PLAYER,
-    CONF_BALL
+    CONF_BALL,
+    CONF_ORIENTATION
 };
 
 static int mouse_id[11];
@@ -131,6 +132,14 @@ static int conf_action(int tok, int val)
         gui_toggle(music_id[music]);
 
         break;
+
+    case CONF_ORIENTATION:
+        config_set_d(CONFIG_ORIENTATION, val);
+        video_set_orientation(val);
+        hud_free();
+        hud_init();
+        goto_state(&st_conf);
+        break;
     }
 
     return r;
@@ -138,6 +147,13 @@ static int conf_action(int tok, int val)
 
 static int conf_gui(void)
 {
+    static const struct conf_option orient_opts[] = {
+        { N_("W"), VIDEO_ORIENTATION_ROTATE },
+        { N_("S"), VIDEO_ORIENTATION_MIRROR },
+        { N_("E"), VIDEO_ORIENTATION_ROTATE | VIDEO_ORIENTATION_MIRROR },
+        { N_("N"), 0 },
+    };
+
     int id;
 
     /* Initialize the configuration GUI. */
@@ -159,10 +175,14 @@ static int conf_gui(void)
 
         //gui_space(id);
 
+        conf_select(id, _("Orientation"), CONF_ORIENTATION,
+                    video.device_orientation,
+                    orient_opts, ARRAYSIZE(orient_opts));
+
         conf_slider(id, _("Tilt Sensitivity"), CONF_MOUSE_SENSE, mouse,
                     mouse_id, ARRAYSIZE(mouse_id));
 
-        gui_space(id);
+        //gui_space(id);
 
         conf_slider(id, _("Sound Volume"), CONF_SOUND_VOLUME, sound,
                     sound_id, ARRAYSIZE(sound_id));
