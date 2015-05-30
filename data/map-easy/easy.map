@@ -12,7 +12,7 @@
 "time_hs" "350 500"
 "coin_hs" "18 15"
 "goal_hs" "2000 4500"
-"message" "Move the mouse to tilt the floor.\Collect 10 coins to unlock the goal.\Guide the ball to the goal to\finish the level.\\Click to begin.\"
+"message" "Angle the device to tilt the floor.\Collect 10 coins to unlock the goal.\Guide the ball to the goal to\finish the level.\\Tap to begin.\"
 // brush 0
 {
 ( 0 192 48 ) ( 0 -64 48 ) ( 0 -64 -16 ) mtrl/invisible 0 0 0 0.5 0.5 134217728 1 0

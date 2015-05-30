@@ -24,7 +24,7 @@ endif
 #------------------------------------------------------------------------------
 # Paths (packagers might want to set DATADIR and LOCALEDIR)
 
-USERDIR   := .config/neverputt.lb
+USERDIR   := .config/neverball.lb
 DATADIR   := ./data
 LOCALEDIR := ./locale
 
