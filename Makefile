@@ -160,7 +160,7 @@ endif
 endif
 endif
 
-#OGL_LIBS := -L/usr/lib/arm-linux-gnueabihf -lGLESv1_CM
+#OGL_LIBS := -L/usr/lib/i386-linux-gnu -lGLESv1_CM
 OGL_LIBS := -L/usr/lib/arm-linux-gnueabihf -lGLESv1_CM
 
 ifeq ($(PLATFORM),mingw)
