@@ -1,7 +1,13 @@
+ARCH ?= armhf
+ENABLE_FS ?= stdio
+
+ifeq ($(ARCH),armhf)
 CC := arm-linux-gnueabihf-gcc
 CXX := arm-linux-gnueabihf-g++
-#CC := i686-linux-gnu-gcc
-#CXX := i686-linux-gnu-g++
+else
+CC := i686-linux-gnu-gcc
+CXX := i686-linux-gnu-g++
+endif
 
 #------------------------------------------------------------------------------
 
@@ -24,7 +30,7 @@ endif
 #------------------------------------------------------------------------------
 # Paths (packagers might want to set DATADIR and LOCALEDIR)
 
-USERDIR   := .config/neverball.lb
+USERDIR   ?= .config/neverball.lb
 DATADIR   := ./data
 LOCALEDIR := ./locale
 
@@ -42,11 +48,19 @@ endif
 ifeq ($(DEBUG),1)
 	CFLAGS   := -g
 	CXXFLAGS := -g
-	CPPFLAGS :=
+ifeq ($(ARCH),armhf)
+	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+else
+	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include
+endif
 else
 	CFLAGS   := -O2 -g
 	CXXFLAGS := -O2 -g
-	CPPFLAGS := -DNDEBUG
+ifeq ($(ARCH),armhf)
+	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+else
+	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include
+endif
 endif
 
 #------------------------------------------------------------------------------
@@ -68,7 +82,11 @@ ALL_CXXFLAGS := -fno-rtti -fno-exceptions $(CXXFLAGS)
 
 # Preprocessor...
 
+ifeq ($(ARCH),armhf)
 SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL/install/bin/sdl2-config --cflags)
+else
+SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --cflags)
+endif
 PNG_CPPFLAGS := $(shell libpng-config --cflags)
 
 ALL_CPPFLAGS := $(SDL_CPPFLAGS) $(PNG_CPPFLAGS) -Ishare
@@ -128,7 +146,11 @@ ALL_CPPFLAGS += $(HMD_CPPFLAGS)
 #------------------------------------------------------------------------------
 # Libraries
 
+ifeq ($(ARCH),armhf)
 SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL/install/bin/sdl2-config --libs)
+else
+SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --libs)
+endif
 PNG_LIBS := $(shell libpng-config --libs)
 
 ifeq ($(ENABLE_FS),stdio)
@@ -154,14 +176,17 @@ ifeq ($(ENABLE_TILT),leapmotion)
 	TILT_LIBS := /usr/lib/Leap/libLeap.so -Wl,-rpath,/usr/lib/Leap
 else
 ifeq ($(ENABLE_TILT),ubuntu)
-	TILT_LIBS := -lubuntu_application_api
+	TILT_LIBS := -ldl
 endif
 endif
 endif
 endif
 
-#OGL_LIBS := -L/usr/lib/i386-linux-gnu -lGLESv1_CM
+ifeq ($(ARCH),armhf)
 OGL_LIBS := -L/usr/lib/arm-linux-gnueabihf -lGLESv1_CM
+else
+OGL_LIBS := -L/usr/lib/i386-linux-gnu -lGLESv1_CM
+endif
 
 ifeq ($(PLATFORM),mingw)
 	ifneq ($(ENABLE_NLS),0)
@@ -192,7 +217,7 @@ OGG_LIBS := -lvorbisfile
 TTF_LIBS := -lSDL2_ttf
 
 ALL_LIBS := $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
-	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS)
+	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -ldbus-1
 
 MAPC_LIBS := $(BASE_LIBS)
 

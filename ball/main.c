@@ -17,6 +17,7 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <string.h>
+#include <dbus/dbus.h>
 
 #include "version.h"
 #include "glext.h"
@@ -562,6 +563,36 @@ int main(int argc, char *argv[])
     log_init("Neverball", "neverball.log");
     make_dirs_and_migrate();
 
+    /* Request backlight stay on (ubuntu touch) */
+
+    int dispreq = -1;
+
+    DBusError err;
+    dbus_error_init(&err);
+    DBusConnection *conn = dbus_bus_get_private(DBUS_BUS_SYSTEM, &err);
+    if (dbus_error_is_set(&err)) {
+        log_printf("Failed to get system bus\n");
+        dbus_error_free(&err);
+        if (conn) {
+            dbus_connection_unref(conn);
+            conn = NULL;
+        }
+    } else {
+        dbus_connection_set_exit_on_disconnect(conn, 0);
+
+        DBusMessage *msg = dbus_message_new_method_call("com.canonical.Unity.Screen", "/com/canonical/Unity/Screen", "com.canonical.Unity.Screen", "keepDisplayOn");
+        if (msg != NULL) {
+            DBusMessage *reply = dbus_connection_send_with_reply_and_block(conn, msg, 300, NULL);
+            if (reply) {
+                if (!dbus_message_get_args(reply, NULL, DBUS_TYPE_INT32, &dispreq, DBUS_TYPE_INVALID)) dispreq = -1;
+                dbus_message_unref(reply);
+            }
+            dbus_message_unref(msg);
+        }
+
+        if (dispreq == -1) log_printf("Failed to request backlight stay on\n");
+    }
+
     /* Initialize SDL. */
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) == -1)
@@ -678,6 +709,23 @@ int main(int argc, char *argv[])
 
     tilt_free();
     hmd_free();
+
+    /* Remove backlight request (ubuntu touch) */
+
+    if (conn) {
+        if (dispreq != -1) {
+            DBusMessage *msg = dbus_message_new_method_call("com.canonical.Unity.Screen", "/com/canonical/Unity/Screen", "com.canonical.Unity.Screen", "removeDisplayOnRequest");
+            dbus_message_append_args(msg, DBUS_TYPE_INT32, &dispreq, DBUS_TYPE_INVALID);
+            if (msg != NULL) {
+                if (dbus_connection_send(conn, msg, NULL)) dbus_connection_flush(conn);
+                dbus_message_unref(msg);
+            }
+        }
+        dbus_connection_close(conn);
+        dbus_connection_unref(conn);
+        dbus_shutdown();
+    }
+
     SDL_Quit();
 
     return 0;
