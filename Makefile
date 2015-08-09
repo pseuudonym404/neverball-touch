@@ -1,5 +1,5 @@
 ARCH ?= armhf
-ENABLE_FS ?= stdio
+ENABLE_FS ?= physfs
 
 ifeq ($(ARCH),armhf)
 CC := arm-linux-gnueabihf-gcc
@@ -31,8 +31,8 @@ endif
 # Paths (packagers might want to set DATADIR and LOCALEDIR)
 
 USERDIR   ?= .config/neverball.lb
-DATADIR   := ./data
-LOCALEDIR := ./locale
+DATADIR   := data
+LOCALEDIR := locale
 
 ifeq ($(PLATFORM),mingw)
 	USERDIR := Neverball
@@ -49,17 +49,17 @@ ifeq ($(DEBUG),1)
 	CFLAGS   := -g
 	CXXFLAGS := -g
 ifeq ($(ARCH),armhf)
-	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install/include
 else
-	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include
+	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install.i386/include
 endif
 else
 	CFLAGS   := -O2 -g
 	CXXFLAGS := -O2 -g
 ifeq ($(ARCH),armhf)
-	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install/include
 else
-	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include
+	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install.i386/include
 endif
 endif
 
@@ -216,8 +216,13 @@ endif
 OGG_LIBS := -lvorbisfile
 TTF_LIBS := -lSDL2_ttf
 
-ALL_LIBS := $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
-	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -ldbus-1
+ifeq ($(ARCH),armhf)
+ALL_LIBS := -L/home/laurie/Software/SDL/install/lib $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
+	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api -ldbus-1
+else
+ALL_LIBS := -L/home/laurie/Software/SDL/install.i386/lib $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
+	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api -ldbus-1
+endif
 
 MAPC_LIBS := $(BASE_LIBS)
 

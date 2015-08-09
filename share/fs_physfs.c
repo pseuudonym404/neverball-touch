@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <physfs.h>
+#include <unistd.h>
 
 #include "fs.h"
 #include "dir.h"
@@ -36,7 +37,12 @@ struct fs_file_s
 
 int fs_init(const char *argv0)
 {
-    if (PHYSFS_init(argv0))
+    char cwd[MAXSTR];
+    char init[MAXSTR];
+    SAFECPY(init, getcwd(cwd, MAXSTR));
+    SAFECAT(init, "/");
+    SAFECAT(init, argv0);
+    if (PHYSFS_init(init))
     {
         PHYSFS_permitSymbolicLinks(1);
         return 1;
