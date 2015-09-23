@@ -11,7 +11,8 @@ endif
 
 #------------------------------------------------------------------------------
 
-BUILD := $(shell head -n1 .build 2> /dev/null || echo release)
+BUILD := release
+#BUILD := $(shell head -n1 .build 2> /dev/null || echo release)
 
 VERSION := 1.6.0
 VERSION := $(shell sh scripts/version.sh "$(BUILD)" "$(VERSION)" \
@@ -49,17 +50,17 @@ ifeq ($(DEBUG),1)
 	CFLAGS   := -g
 	CXXFLAGS := -g
 ifeq ($(ARCH),armhf)
-	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install/include
+	CPPFLAGS := -I/home/laurie/touch/armhf/15.10/include
 else
-	CPPFLAGS := -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install.i386/include
+	CPPFLAGS := -I/home/laurie/touch/i386/15.10/include
 endif
 else
 	CFLAGS   := -O2 -g
 	CXXFLAGS := -O2 -g
 ifeq ($(ARCH),armhf)
-	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install/include
+	CPPFLAGS := -DNDEBUG -I/home/laurie/touch/armhf/15.10/include
 else
-	CPPFLAGS := -DNDEBUG -I/usr/include/dbus-1.0 -I/usr/lib/i386-linux-gnu/dbus-1.0/include -I/home/laurie/Software/Touch/SDL/install.i386/include
+	CPPFLAGS := -DNDEBUG -I/home/laurie/touch/i386/15.10/include
 endif
 endif
 
@@ -83,9 +84,9 @@ ALL_CXXFLAGS := -fno-rtti -fno-exceptions $(CXXFLAGS)
 # Preprocessor...
 
 ifeq ($(ARCH),armhf)
-SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL/install/bin/sdl2-config --cflags)
+SDL_CPPFLAGS := $(shell /home/laurie/touch/armhf/15.10/bin/sdl2-config --cflags)
 else
-SDL_CPPFLAGS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --cflags)
+SDL_CPPFLAGS := $(shell /home/laurie/touch/i386/15.10/bin/sdl2-config --cflags)
 endif
 PNG_CPPFLAGS := $(shell libpng-config --cflags)
 
@@ -147,9 +148,9 @@ ALL_CPPFLAGS += $(HMD_CPPFLAGS)
 # Libraries
 
 ifeq ($(ARCH),armhf)
-SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL/install/bin/sdl2-config --libs)
+SDL_LIBS := $(shell /home/laurie/touch/armhf/15.10/bin/sdl2-config --libs)
 else
-SDL_LIBS := $(shell /home/laurie/Software/Touch/SDL/install.i386/bin/sdl2-config --libs)
+SDL_LIBS := $(shell /home/laurie/touch/i386/15.10/bin/sdl2-config --libs)
 endif
 PNG_LIBS := $(shell libpng-config --libs)
 
@@ -217,11 +218,11 @@ OGG_LIBS := -lvorbisfile
 TTF_LIBS := -lSDL2_ttf
 
 ifeq ($(ARCH),armhf)
-ALL_LIBS := -L/home/laurie/Software/SDL/install/lib $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
-	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api -ldbus-1
+ALL_LIBS := -L/home/laurie/touch/armhf/15.10/lib -Wl,-rpath-link,/lib/arm-linux-gnueabihf,-rpath-link,/usr/lib/arm-linux-gnueabihf,-rpath-link,/usr/lib/arm-linux-gnueabihf/pulseaudio $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
+	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api
 else
-ALL_LIBS := -L/home/laurie/Software/SDL/install.i386/lib $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
-	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api -ldbus-1
+ALL_LIBS := -L/home/laurie/touch/i386/15.10/lib $(HMD_LIBS) $(TILT_LIBS) $(INTL_LIBS) $(TTF_LIBS) \
+	$(OGG_LIBS) $(SDL_LIBS) $(OGL_LIBS) $(BASE_LIBS) -lubuntu_application_api
 endif
 
 MAPC_LIBS := $(BASE_LIBS)
